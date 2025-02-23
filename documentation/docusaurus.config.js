@@ -42,7 +42,7 @@ const config = {
   tagline: 'Owls are cool',
   /*Unless you move this website to a seperate repo don't change url and baseurl.*/
   url: 'https://'+process.env.ORG_NAME+'.github.io/',
-  baseUrl: '/'+process.env.PROJECT_NAME+'/',
+  baseUrl: '/'+rawProjectName+'/',
   trailingSlash: false,
   onBrokenLinks: 'warn',
   onBrokenMarkdownLinks: 'warn',
@@ -101,7 +101,7 @@ const config = {
         specs: [
           {
             id: 'using-single-yaml',
-            spec: 'static/openapi.yml.yaml',
+            spec: 'static/apispec_1.json',
             route: '/api/',
           },
         ],

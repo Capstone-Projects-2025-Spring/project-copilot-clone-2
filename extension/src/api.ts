@@ -1,8 +1,17 @@
 import * as vscode from "vscode";
 
+/** Endpoint for creating new AI suggestions */
 const AI_ENDPOINT: string = "https://ai.nickrucinski.com/generate";
+
+/** Endpoint for logging information */
 const LOG_ENDPOINT: string = "http://ai.nickrucinski.com/log";
 
+/**
+ * Fetches AI-generated suggestions based on the given prompt.
+ *
+ * @param {string} prompt - The input prompt to send to the AI model.
+ * @returns {Promise<string[]>} A promise that resolves to an array of suggested strings.
+ */
 export async function fetchSuggestions(prompt: string): Promise<string[]> {
     try {
         const response = await fetch(AI_ENDPOINT, {
@@ -27,10 +36,12 @@ export async function fetchSuggestions(prompt: string): Promise<string[]> {
     return [];
 }
 
-function getSuggestionId(document: vscode.TextDocument, position: vscode.Position): string {
-    return `${document.uri.toString()}-${position.line}-${position.character}`;
-}
-
+/**
+ * Logs the user's decision on an AI-generated suggestion.
+ *
+ * @param {string} text - The suggestion text that was acted upon.
+ * @param {number} elapsedTime - The time elapsed (in milliseconds) since the suggestion was generated.
+ */
 export function logSuggestionDecision(text: string, elapsedTime: number) {
     fetch(LOG_ENDPOINT, {
         method: "POST",

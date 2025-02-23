@@ -22,6 +22,13 @@ sidebar_position: 6
 - **Package Managers**
   - Pip for Python
   - Npm for Visual Code Extension
+- **Documentation Generators**
+  - TypeDoc
+    - HTML documentation generator for Typescript
+  - Sphinx
+    - HTML documentation generator for Python
+  - Flasgger
+    - OpenAPI spec generator for Flask API 
 
 ## Languages
 

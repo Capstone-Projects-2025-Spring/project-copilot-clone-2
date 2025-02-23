@@ -1,0 +1,396 @@
+{
+  "definitions": {},
+  "info": {
+    "description": "powered by Flasgger",
+    "termsOfService": "/tos",
+    "title": "Github Copilot Extension",
+    "version": "0.0.1"
+  },
+  "paths": {
+    "/log": {
+      "post": {
+        "description": "Logs the event to the database.",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "properties": {
+                "data": {
+                  "example": {
+                    "userID": 12345
+                  },
+                  "type": "object"
+                },
+                "event": {
+                  "example": "User logged in",
+                  "type": "string"
+                },
+                "timestamp": {
+                  "example": 1708401940,
+                  "type": "number"
+                }
+              },
+              "required": [
+                "event",
+                "timestamp",
+                "data"
+              ],
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Event logged successfully",
+            "schema": {
+              "properties": {
+                "status": {
+                  "example": "logged",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "400": {
+            "description": "Bad request or invalid input",
+            "schema": {
+              "properties": {
+                "message": {
+                  "example": "Missing required fields: event, text",
+                  "type": "string"
+                },
+                "status": {
+                  "example": "error",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "summary": "Logs the event to the database.\nSee Swagger docs for more information.",
+        "tags": [
+          "Logging"
+        ]
+      }
+    },
+    "/logs": {
+      "get": {
+        "description": "Fetches all logged events from the database.",
+        "responses": {
+          "200": {
+            "description": "List of logs",
+            "schema": {
+              "items": {
+                "properties": {
+                  "data": {
+                    "example": {
+                      "user_id": 12345
+                    },
+                    "type": "object"
+                  },
+                  "event": {
+                    "example": "user_login",
+                    "type": "string"
+                  },
+                  "id": {
+                    "example": 1,
+                    "type": "integer"
+                  },
+                  "timestamp": {
+                    "example": 1708401940,
+                    "type": "number"
+                  }
+                },
+                "type": "object"
+              },
+              "type": "array"
+            }
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "summary": "Retrieve all logs in the database\nSee Swagger docs for more information.",
+        "tags": [
+          "Logging"
+        ]
+      }
+    },
+    "/logs/{user_id}": {
+      "get": {
+        "description": "Fetches all logged events associated with a specific user ID.",
+        "parameters": [
+          {
+            "description": "The ID of the user whose logs are being retrieved.",
+            "example": 12345,
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of logs for the specified user",
+            "schema": {
+              "items": {
+                "properties": {
+                  "data": {
+                    "example": {
+                      "user_id": 12345
+                    },
+                    "type": "object"
+                  },
+                  "event": {
+                    "example": "user_login",
+                    "type": "string"
+                  },
+                  "id": {
+                    "example": 1,
+                    "type": "integer"
+                  },
+                  "timestamp": {
+                    "example": 1708401940,
+                    "type": "number"
+                  }
+                },
+                "type": "object"
+              },
+              "type": "array"
+            }
+          },
+          "404": {
+            "description": "No logs found for the specified user"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "summary": "Get all logs for a specific user\nSee Swagger docs for more information.",
+        "tags": [
+          "Logging"
+        ]
+      }
+    },
+    "/suggestion": {
+      "post": {
+        "consumes": [
+          "application/json"
+        ],
+        "description": "Sends a prompt to the locally running Ollama model and returns the generated suggestion.",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "properties": {
+                "prompt": {
+                  "example": "def add(a, b):",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "prompt"
+              ],
+              "type": "object"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully generated suggestion",
+            "schema": {
+              "properties": {
+                "suggestions": {
+                  "example": [
+                    "return a + b"
+                  ],
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "400": {
+            "description": "Bad Request - No prompt provided",
+            "schema": {
+              "properties": {
+                "error": {
+                  "example": "No prompt provided",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - Failed to generate response",
+            "schema": {
+              "properties": {
+                "error": {
+                  "example": "Connection error",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          }
+        },
+        "summary": "Generate a suggestion based on the provided prompt.\nSee Swagger docs for more information.",
+        "tags": [
+          "Suggestions"
+        ]
+      }
+    },
+    "/users": {
+      "post": {
+        "description": "Registers a new user with first name, last name, email, and password.",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "properties": {
+                "email": {
+                  "example": "jaime@example.com",
+                  "type": "string"
+                },
+                "first_name": {
+                  "example": "Jaime",
+                  "type": "string"
+                },
+                "last_name": {
+                  "example": "Nguyen",
+                  "type": "string"
+                },
+                "password": {
+                  "example": "password123",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "first_name",
+                "last_name",
+                "email",
+                "password"
+              ],
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "User created successfully",
+            "schema": {
+              "properties": {
+                "email": {
+                  "type": "string"
+                },
+                "first_name": {
+                  "type": "string"
+                },
+                "id": {
+                  "type": "string"
+                },
+                "last_name": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "400": {
+            "description": "Bad request (missing fields or email already exists)",
+            "schema": {
+              "properties": {
+                "error": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "schema": {
+              "properties": {
+                "error": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          }
+        },
+        "summary": "Create a new user with first name, last name, email, and password.",
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/users/{user_id}": {
+      "get": {
+        "description": "Retrieves user details based on the provided user ID.",
+        "parameters": [
+          {
+            "example": "123",
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User found successfully",
+            "schema": {
+              "properties": {
+                "email": {
+                  "type": "string"
+                },
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "schema": {
+              "properties": {
+                "error": {
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          }
+        },
+        "summary": "TODO Get a specific user by ID",
+        "tags": [
+          "Users"
+        ]
+      }
+    }
+  },
+  "swagger": "2.0"
+}

@@ -20,3 +20,4 @@ node_modules
 .idea/
 __pycache__/
 **/.env
+.pytest_cache/
