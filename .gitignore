@@ -21,3 +21,4 @@ node_modules
 __pycache__/
 **/.env
 .pytest_cache/
+flask_session/

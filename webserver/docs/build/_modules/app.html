@@ -71,6 +71,8 @@
   <h1>Source code for app</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">flask</span><span class="w"> </span><span class="kn">import</span> <span class="n">Flask</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">flask_cors</span><span class="w"> </span><span class="kn">import</span> <span class="n">CORS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">flask_session</span><span class="w"> </span><span class="kn">import</span> <span class="n">Session</span>
+
 <span class="kn">from</span><span class="w"> </span><span class="nn">routes.__init__</span><span class="w"> </span><span class="kn">import</span> <span class="n">register_blueprints</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">flasgger</span><span class="w"> </span><span class="kn">import</span> <span class="n">Swagger</span>
 
@@ -92,6 +94,12 @@
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
     <span class="n">app</span> <span class="o">=</span> <span class="n">create_app</span><span class="p">()</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;SESSION_PERMANENT&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># Keep session across requests</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;SESSION_TYPE&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;filesystem&quot;</span>  <span class="c1"># Store session data in files</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;SESSION_FILE_DIR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;./flask_session&quot;</span>  <span class="c1"># Ensure sessions persist</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;SESSION_COOKIE_SECURE&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># Allow local development</span>
+
+    <span class="n">Session</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
     <span class="n">app</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">host</span><span class="o">=</span><span class="n">ip_address</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="n">port</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 

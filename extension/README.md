@@ -15,14 +15,18 @@ TODO
 
 ## Extension Settings
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+Extension settings can be modified in VSCode settings using the shorcut `CTRL+,` 
 
-For example:
+Alternatively you can navigate to File>Preferences>Settings>User>Extensions
 
-This extension contributes the following settings:
+Settings include basic model paramters, changing which model you're trying to use, and changing the endpoint for handling suggestions.
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+### Debugging
+There is a command for debugging fetching a suggestion.
+
+Use the shortcut `CTRL+SHIFT+P` to bring up the command palette, search for the "Test Fetch Suggestions" command and run it.
+
+You can type in a snippet of code you'd like to have finished, and a window will pop-up showing you the response from the LLM.
 
 ## Extension Testings
 

@@ -1,5 +1,7 @@
 from flask import Flask
 from flask_cors import CORS
+from flask_session import Session
+
 from routes.__init__ import register_blueprints
 from flasgger import Swagger
 
@@ -18,4 +20,10 @@ def create_app():
 
 if __name__ == '__main__':
     app = create_app()
+    app.config["SESSION_PERMANENT"] = True  # Keep session across requests
+    app.config["SESSION_TYPE"] = "filesystem"  # Store session data in files
+    app.config["SESSION_FILE_DIR"] = "./flask_session"  # Ensure sessions persist
+    app.config["SESSION_COOKIE_SECURE"] = False  # Allow local development
+
+    Session(app)
     app.run(host=ip_address, port=port, debug=True)

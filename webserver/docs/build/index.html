@@ -92,6 +92,11 @@ documentation for details.</p>
 <dd></dd></dl>
 
 <dl class="py function" id="module-database">
+<dt class="sig sig-object py" id="database.callback">
+<span class="sig-prename descclassname"><span class="pre">database.</span></span><span class="sig-name descname"><span class="pre">callback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">code</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/database.html#callback"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#database.callback" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="database.create_user">
 <span class="sig-prename descclassname"><span class="pre">database.</span></span><span class="sig-name descname"><span class="pre">create_user</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">first_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">email</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/database.html#create_user"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#database.create_user" title="Link to this definition"></a></dt>
 <dd><p>Create a user in the database</p>
@@ -120,6 +125,18 @@ password (str): The user’s password (hashed before storage).</p>
 <dd class="field-odd"><p><strong>Exception</strong> – If there is an issue with database insertion.</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="database.generate_code_challenge">
+<span class="sig-prename descclassname"><span class="pre">database.</span></span><span class="sig-name descname"><span class="pre">generate_code_challenge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verifier</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/database.html#generate_code_challenge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#database.generate_code_challenge" title="Link to this definition"></a></dt>
+<dd><p>Create a SHA256 challenge from the code verifier (RFC 7636).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="database.generate_code_verifier">
+<span class="sig-prename descclassname"><span class="pre">database.</span></span><span class="sig-name descname"><span class="pre">generate_code_verifier</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/database.html#generate_code_verifier"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#database.generate_code_verifier" title="Link to this definition"></a></dt>
+<dd><p>Generate a secure random code verifier (43-128 characters).</p>
 </dd></dl>
 
 <dl class="py function">
@@ -160,6 +177,11 @@ password (str): The user’s password (hashed before storage).</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="database.get_supabase">
+<span class="sig-prename descclassname"><span class="pre">database.</span></span><span class="sig-name descname"><span class="pre">get_supabase</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">SyncClient</span></span></span><a class="reference internal" href="_modules/database.html#get_supabase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#database.get_supabase" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="database.get_user_by_id">
 <span class="sig-prename descclassname"><span class="pre">database.</span></span><span class="sig-name descname"><span class="pre">get_user_by_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/database.html#get_user_by_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#database.get_user_by_id" title="Link to this definition"></a></dt>
 <dd><p>Fetch a single user by ID.</p>
@@ -188,14 +210,19 @@ None: If the user does not exist.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>event</strong> (<em>dict</em>) – A dictionary containing event details. Expected keys are:
 - ‘event’: The name of the event.
-- ‘text’: A textual description of the event.
-- ‘data’: Additional data associated with the event.</p>
+- ‘time_lapse’: A textual description of the event.
+- ‘metadata’: Additional data associated with the event.</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>Exception</strong> – If there is an error inserting the log into the database.</p>
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="database.login">
+<span class="sig-prename descclassname"><span class="pre">database.</span></span><span class="sig-name descname"><span class="pre">login</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/database.html#login"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#database.login" title="Link to this definition"></a></dt>
+<dd></dd></dl>
 
 <dl class="py function" id="module-routes.logging">
 <dt class="sig sig-object py" id="routes.logging.get_logs_by_user_route">

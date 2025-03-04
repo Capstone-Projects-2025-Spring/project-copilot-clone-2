@@ -1,7 +1,15 @@
+import base64
+import hashlib
 import os
-from supabase import create_client, Client
+import secrets
+
 from dotenv import load_dotenv
 import bcrypt
+from supabase.client import Client, ClientOptions
+from werkzeug.local import LocalProxy
+
+from flask_storage import FlaskSessionStorage
+from flask import g, session
 
 load_dotenv()
 
@@ -11,7 +19,29 @@ SUPABASE_KEY: str = os.getenv('SUPABASE_KEY')
 if not SUPABASE_URL or not SUPABASE_KEY:
     raise ValueError("Missing SUPABASE_URL or SUPABASE_KEY. Check your .env file.")
 
-client: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+def get_supabase() -> Client:
+    if "supabase" not in g:
+        g.supabase = Client(
+            SUPABASE_URL,
+            SUPABASE_KEY,
+            options=ClientOptions(
+                storage=FlaskSessionStorage(),
+                flow_type="pkce"
+            ),
+        )
+        return g.supabase
+
+client: Client = LocalProxy(get_supabase)
+
+def generate_code_verifier():
+   """Generate a secure random code verifier (43-128 characters)."""
+   return secrets.token_urlsafe(64)  # Secure random 64-character string
+
+def generate_code_challenge(verifier):
+   """Create a SHA256 challenge from the code verifier (RFC 7636)."""
+   sha256_hash = hashlib.sha256(verifier.encode()).digest()
+   challenge = base64.urlsafe_b64encode(sha256_hash).decode().rstrip("=")  # Remove '=' padding
+   return challenge
 
 def log_event(event):
     """
@@ -20,8 +50,8 @@ def log_event(event):
     Args:
         event (dict): A dictionary containing event details. Expected keys are:
             - 'event': The name of the event.
-            - 'text': A textual description of the event.
-            - 'data': Additional data associated with the event.
+            - 'time_lapse': A textual description of the event.
+            - 'metadata': Additional data associated with the event.
 
     Raises:
         Exception: If there is an error inserting the log into the database.
@@ -51,7 +81,7 @@ def get_all_logs():
         Exception: If there is an error fetching the logs from the database.
     """
     try:
-        response = client.table("Logs").select("*").execute()
+        response = client.table("logs").select("*").execute()
         
         # if response.error:
         #     raise Exception(f"Error fetching logs: {response.error}")
@@ -78,7 +108,7 @@ def get_logs_by_user(user_id):
     """
     try:
         # This will not work right now. Need to decide if we want to store user id in schema or data
-        response = client.table("Logs").select("*").eq("data->>user_id", str(user_id)).execute()
+        response = client.table("logs").select("*").eq("data->>user_id", str(user_id)).execute()
 
         # if response.error:
         #     raise Exception(f"Error fetching logs for user {user_id}: {response.error}")
@@ -104,7 +134,7 @@ def get_user_by_id(user_id):
         Exception: If there is an error during the database query.
     """
     try:
-        response = client.table("Users").select("*").eq("id", user_id).execute()
+        response = client.table("users").select("*").eq("id", user_id).execute()
 
         if response.error:
             raise Exception(f"Error fetching user {user_id}: {response.error}")
@@ -137,13 +167,13 @@ def create_user(first_name, last_name, email, password):
         Exception: If there is an issue with database insertion.
     """
     try:
-        existing_user = client.table("Users").select("id").eq("email", email).execute()
+        existing_user = client.table("users").select("id").eq("email", email).execute()
         if existing_user.data:
             return {"error": "Email already exists"}, 400
         
         hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
-        response = client.table("Users").insert({
+        response = client.table("users").insert({
             "first_name": first_name,
             "last_name": last_name,
             "email": email,
@@ -158,3 +188,24 @@ def create_user(first_name, last_name, email, password):
     except Exception as e:
         print(f"Exception while creating user: {e}")
         return {"error": "Internal server error"}, 500
+
+
+def login(request):
+    session.clear()  # Ensure we start fresh each time
+    res = client.auth.sign_in_with_oauth(
+        {
+            "provider": "github",
+            "options": {
+                "redirect_to": "https://ai.nickrucinski.com/auth/callback"
+            },
+        }
+    )
+    return res
+
+def callback(code):
+    try:
+        # Supabase automatically retrieves and verifies the code_verifier from the session
+        res = client.auth.exchange_code_for_session({"auth_code": code})
+        print("Authentication successful:", res)
+    except Exception as e:
+        return f"Authentication failed: {str(e)}", 500

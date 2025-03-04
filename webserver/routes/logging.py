@@ -17,22 +17,22 @@ logging_bp = Blueprint('logging', __name__)
             'schema': {
                 'type': 'object',
                 'properties': {
-                    'timestamp': {
+                    'time_lapse': {
                         'type': 'number',
-                        'example': 1708401940
+                        'example': 1708
                         },
                     'event': {
                         'type': 'string',
                         'example': 'User logged in'
                         },
-                    'data': {
+                    'metadata': {
                         'type': 'object',
                         'example': {
                             'userID': 12345,
                             }
                         }
                 },
-                'required': ['event', 'timestamp', 'data']
+                'required': ['event', 'timelapse', 'metadata']
             }
         }
     ],

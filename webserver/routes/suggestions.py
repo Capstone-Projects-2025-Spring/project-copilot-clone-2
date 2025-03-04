@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+import openai_api as openai
 import requests
 from flasgger import swag_from
 
@@ -106,31 +107,51 @@ def generate_suggestion_route():
     """
     data = request.json
     prompt = data.get("prompt", "")
-    model_name = data.get("model", DEFAULT_MODEL_NAME)
+    model_name = data.get("model", "ollama")
+    temperature = data.get("temperature", 0.2)
+    top_p = data.get("top_p", 1)
+    top_k = data.get("top_k", 0)
+    max_tokens = data.get("max_tokens", 256)
     is_correct = data.get("isCorrect", True)
 
     if not prompt:
         return jsonify({"error": "No prompt provided"}), 400
-
-    try:
-
-        full_prompt = (
-            "".join(commands) + (good_command if is_correct else bad_command) + prompt
-        )
-
-        response = requests.post(
-            OLLAMA_URL,
-            json={
-                "model": model_name,
-                "prompt": full_prompt,
-                "keep_alive": "1h",
-                "stream": False
-            },
-        )
-        response.raise_for_status()
-        result = response.json()
-
-        return jsonify({"suggestions": [result["response"]]})
     
-    except requests.exceptions.RequestException as e:
-        return jsonify({"error": str(e)}), 500
+    # ChatGPT model detected.
+    if ("gpt" in model_name):
+        try:
+            response = openai.getSuggestion(prompt, commands, model=model_name, temperature=temperature, top_p=top_p, max_tokens=max_tokens)
+            return jsonify({"suggestions": [response["suggestions"]]})
+        except Exception as e:
+            print(f"Error fetching OpenAI suggestion: {e}")
+            return jsonify({"error": str(e)}), 500
+        
+    # Ollama detected
+    else:
+        try:
+
+            # If the request is meant for ollama, but without a specific model, it uses default model.
+            if model_name == "ollama":
+                model_name = DEFAULT_MODEL_NAME
+                
+            full_prompt = (
+                "".join(commands) + (good_command if is_correct else bad_command) + prompt
+            )
+
+            response = requests.post(
+                OLLAMA_URL,
+                json={
+                    "model": model_name,
+                    "prompt": full_prompt,
+                    "keep_alive": "1h",
+                    "stream": False
+                },
+            )
+            response.raise_for_status()
+            result = response.json()
+
+            return jsonify({"suggestions": [result["response"]]})
+        
+        except requests.exceptions.RequestException as e:
+            print(f"Error fetching Ollama suggestion: {e}")
+            return jsonify({"error": str(e)}), 500

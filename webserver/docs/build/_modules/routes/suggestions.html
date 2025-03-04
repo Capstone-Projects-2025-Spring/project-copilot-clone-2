@@ -70,6 +70,7 @@
              
   <h1>Source code for routes.suggestions</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">flask</span><span class="w"> </span><span class="kn">import</span> <span class="n">Blueprint</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">jsonify</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">openai_api</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">openai</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">flasgger</span><span class="w"> </span><span class="kn">import</span> <span class="n">swag_from</span>
 
@@ -82,7 +83,11 @@
 <span class="c1"># {</span>
 <span class="c1">#     &quot;name&quot;: &quot;copilot-style-codellama&quot;,</span>
 <span class="c1">#     &quot;from&quot;: &quot;codellama&quot;,</span>
-<span class="c1">#     &quot;system&quot;: &quot;You are an AI assistant that provides code completions similar to GitHub Copilot. However, when specified you will need to respond with small errors that are left for the user to detect. Your responses should be concise and continue the user&#39;s code seamlessly. Please follow all of the commands when giving completions. SYSTEM: Only respond with the code following the prompt, SYSTEM: Avoid pointing out mistakes, SYSTEM: Respond in only plane text, SYSTEM: Avoid including text describing or explaining the code mistake at all, SYSTEM: Provide comments only where necessary, SYSTEM: Avoid providing additional information, SYSTEM: If the prompt asks for an error, introduce a small syntax or logic mistake in the code. Do not explain or provide any extra context.&quot;</span>
+<span class="c1">#     &quot;system&quot;: &quot;You are an AI assistant that provides code completions similar to GitHub Copilot. However, when specified you will need to respond with small errors that are left for the user to detect. Never point these errors out in any way. Your responses should be concise and continue the user&#39;s code seamlessly. Please follow all of the commands when giving completions. SYSTEM: Only respond with the code following the prompt, SYSTEM: Avoid pointing out mistakes, SYSTEM: Respond in only plane text, SYSTEM: Avoid including text describing or explaining the code mistake at all, SYSTEM: Provide comments only where necessary, SYSTEM: Avoid providing additional information, SYSTEM: If the prompt asks for an error, introduce a small syntax or logic mistake in the code. Do not explain or provide any extra context.&quot;,</span>
+<span class="c1">#     &quot;parameters&quot;: {</span>
+<span class="c1">#         &quot;temperature&quot;: 0.2,</span>
+<span class="c1">#         &quot;top_k&quot;: 50</span>
+<span class="c1">#     }</span>
 <span class="c1"># }</span>
 
 <span class="n">commands</span> <span class="o">=</span> <span class="p">[</span>
@@ -175,34 +180,54 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">json</span>
     <span class="n">prompt</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;prompt&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-    <span class="n">model_name</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="n">DEFAULT_MODEL_NAME</span><span class="p">)</span>
+    <span class="n">model_name</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="s2">&quot;ollama&quot;</span><span class="p">)</span>
+    <span class="n">temperature</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;temperature&quot;</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">)</span>
+    <span class="n">top_p</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;top_p&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">top_k</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;top_k&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">max_tokens</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;max_tokens&quot;</span><span class="p">,</span> <span class="mi">256</span><span class="p">)</span>
     <span class="n">is_correct</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;isCorrect&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">prompt</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;No prompt provided&quot;</span><span class="p">}),</span> <span class="mi">400</span>
-
-    <span class="k">try</span><span class="p">:</span>
-
-        <span class="n">full_prompt</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">commands</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">good_command</span> <span class="k">if</span> <span class="n">is_correct</span> <span class="k">else</span> <span class="n">bad_command</span><span class="p">)</span> <span class="o">+</span> <span class="n">prompt</span>
-        <span class="p">)</span>
-
-        <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
-            <span class="n">OLLAMA_URL</span><span class="p">,</span>
-            <span class="n">json</span><span class="o">=</span><span class="p">{</span>
-                <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">model_name</span><span class="p">,</span>
-                <span class="s2">&quot;prompt&quot;</span><span class="p">:</span> <span class="n">full_prompt</span><span class="p">,</span>
-                <span class="s2">&quot;keep_alive&quot;</span><span class="p">:</span> <span class="s2">&quot;1h&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;stream&quot;</span><span class="p">:</span> <span class="kc">False</span>
-            <span class="p">},</span>
-        <span class="p">)</span>
-        <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
-
-        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s2">&quot;suggestions&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">]]})</span>
     
-    <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">RequestException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}),</span> <span class="mi">500</span></div>
+    <span class="c1"># ChatGPT model detected.</span>
+    <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;gpt&quot;</span> <span class="ow">in</span> <span class="n">model_name</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">openai</span><span class="o">.</span><span class="n">getSuggestion</span><span class="p">(</span><span class="n">prompt</span><span class="p">,</span> <span class="n">commands</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="n">temperature</span><span class="p">,</span> <span class="n">top_p</span><span class="o">=</span><span class="n">top_p</span><span class="p">,</span> <span class="n">max_tokens</span><span class="o">=</span><span class="n">max_tokens</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s2">&quot;suggestions&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">response</span><span class="p">[</span><span class="s2">&quot;suggestions&quot;</span><span class="p">]]})</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error fetching OpenAI suggestion: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}),</span> <span class="mi">500</span>
+        
+    <span class="c1"># Ollama detected</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+
+            <span class="c1"># If the request is meant for ollama, but without a specific model, it uses default value.</span>
+            <span class="k">if</span> <span class="n">model_name</span> <span class="o">==</span> <span class="s2">&quot;ollama&quot;</span><span class="p">:</span>
+                <span class="n">model_name</span> <span class="o">=</span> <span class="n">DEFAULT_MODEL_NAME</span>
+                
+            <span class="n">full_prompt</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">commands</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">good_command</span> <span class="k">if</span> <span class="n">is_correct</span> <span class="k">else</span> <span class="n">bad_command</span><span class="p">)</span> <span class="o">+</span> <span class="n">prompt</span>
+            <span class="p">)</span>
+
+            <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
+                <span class="n">OLLAMA_URL</span><span class="p">,</span>
+                <span class="n">json</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">model_name</span><span class="p">,</span>
+                    <span class="s2">&quot;prompt&quot;</span><span class="p">:</span> <span class="n">full_prompt</span><span class="p">,</span>
+                    <span class="s2">&quot;keep_alive&quot;</span><span class="p">:</span> <span class="s2">&quot;1h&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;stream&quot;</span><span class="p">:</span> <span class="kc">False</span>
+                <span class="p">},</span>
+            <span class="p">)</span>
+            <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+
+            <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s2">&quot;suggestions&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">]]})</span>
+        
+        <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">RequestException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error fetching Ollama suggestion: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)}),</span> <span class="mi">500</span></div>
 
 </pre></div>
 

@@ -1,5 +1,6 @@
 {
   "name": "copilot-clone",
+  "publisher": "capstone",
   "displayName": "copilotClone-extension",
   "description": "",
   "version": "0.0.1",
@@ -14,10 +15,71 @@
   ],
   "main": "./out/extension.js",
   "contributes": {
+    "configuration": [
+      {
+        "title": "Copilot Clone",
+        "properties": {
+          "copilot-clone.general.modelSelection": {
+            "type": "string",
+            "enum": [
+              "ollama",
+              "gpt-4o",
+              "gpt-4o-mini",
+              "DeepSeek"
+            ],
+            "default": "ollama",
+            "description": "Select which LLM used for suggestions.",
+            "group": "general"
+          },
+          "copilot-clone.model.temperature": {
+            "type": "number",
+            "default": 0.2,
+            "minimum": 0,
+            "maximum": 2,
+            "description": "Temperature value the model will use.",
+            "group": "model"
+          },
+          "copilot-clone.model.topK": {
+            "type": "number",
+            "default": 0,
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Top K value the model will use.",
+            "group": "model"
+          },
+          "copilot-clone.model.topP": {
+            "type": "number",
+            "default": 1,
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Top P (Nucleus Sampling) value the model will use.",
+            "group": "model"
+          },
+          "copilot-clone.model.maxTokens": {
+            "type": "number",
+            "default": 256,
+            "minimum": 0,
+            "maximum": 1024,
+            "description": "Limit the maximum number of tokens allowed for a response.",
+            "group": "model"
+          },
+          "copilot-clone.debug.AIEndpoint": {
+            "type": "string",
+            "default": "https://ai.nickrucinski.com/suggestion",
+            "description": "The endpoint the extension will fetch suggestions from.",
+            "group": "debug"
+          }
+        }
+      }
+    ],
     "commands": [
       {
         "command": "copilotClone.run",
         "title": "Run CopilotTest"
+      },
+      {
+        "command": "copilotClone.signIn",
+        "title": "Sign In for coPilotClone"
       }
     ]
   },
@@ -31,7 +93,6 @@
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",
-    "@types/mocha": "^10.0.10",
     "@types/node": "20.x",
     "@types/vscode": "^1.97.0",
     "@typescript-eslint/eslint-plugin": "^8.22.0",
@@ -46,7 +107,9 @@
     "typescript": "^5.7.3"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.49.1",
     "axios": "^1.7.9",
+    "dotenv": "^16.4.7",
     "typedoc-theme-hierarchy": "^5.0.4"
   }
 }
