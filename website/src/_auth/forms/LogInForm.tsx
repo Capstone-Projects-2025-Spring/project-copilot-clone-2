@@ -1,18 +1,21 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 const LogInForm = () => {
-  const navigate = useNavigate()
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
-  return (
-    <div>
-      <button
-        onClick={() => navigate('/signup')}
-        className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
-      >
-        Go to Sign Up
-      </button>
-    </div>
-  )
-}
+  const handleLogin = async () => {
+    const response = await fetch('http://localhost:3000/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      console.log(data);
+    }
+  }
 
 export default LogInForm

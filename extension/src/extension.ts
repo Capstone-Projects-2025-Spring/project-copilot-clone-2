@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
-import { checkAndStoreSupabaseSecrets, getSupabaseClient } from './auth/supabaseClient';
+import { getAuthenticatedSess, getSupabaseClient } from './auth/supabaseClient';
+import { showLoginWebview } from './webview';
 import { LogData, LogEvent } from './types/event';
 import { trackEvent } from './api/log';
 import { fetchSuggestions } from './api/suggestion';
@@ -25,9 +26,20 @@ let lastRequest: { document: vscode.TextDocument; position: vscode.Position; con
  * @param {vscode.ExtensionContext} context - The extension context provided by VS Code.
  */
 export async function activate(context: vscode.ExtensionContext) {
-    // Load environment variables from .env file
-    const secretStorage = context.secrets;
-    checkAndStoreSupabaseSecrets(secretStorage);
+   const supabase = await getSupabaseClient(context);
+    if (!supabase) { 
+        vscode.window.showErrorMessage('Supabase client initialization failed.');
+        return;
+    }
+
+    const session = await getAuthenticatedSess();
+    if (!session) {
+        vscode.window.showInformationMessage('Please sign in to use this extension.');
+        showLoginWebview(context);
+    }
+    else{
+        vscode.window.showInformationMessage(`Signed in as ${session.user?.email}`);
+    }
 
     console.log("AI Extension Activated");
 
