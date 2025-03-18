@@ -38,6 +38,13 @@ suggestions_bp = Blueprint('suggestions', __name__)
                         'type': 'boolean',
                         'example': False,
                         'description': 'A flag indicating whether the suggestion should be correct.'
+                    },
+                    'parameters': {
+                        'type': 'object',
+                        'example': {
+                            "top_k": 0.2
+                        },
+                        'description': 'A flag indicating whether the suggestion should be correct.'
                     }
                 },
                 'required': ['prompt']
@@ -87,7 +94,7 @@ def generate_suggestion_route():
     prompt = data.get("prompt", "")
     vendor_name = data.get("vendor")
     model_name = data.get("model")
-    model_params = data.get("params")
+    model_params = data.get("parameters")
     is_correct = data.get("is_correct")
 
     if not prompt:
