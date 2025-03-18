@@ -34,18 +34,27 @@
     ],
     "configuration": [
       {
-        "title": "Copilot Clone",
+        "title": "Copilot Clone Settings",
         "properties": {
+          "copilot-clone.general.vendor": {
+            "type": "string",
+            "default": "ollama",
+            "enum": ["ollama", "openai", "google"],
+            "description": "Choose the vendor providing the model."
+          },
           "copilot-clone.general.modelSelection": {
             "type": "string",
+            "default": "codellama:7b",
             "enum": [
-              "ollama",
-              "gpt-4o",
+              "--Ollama--",
+              "codellama:7b",
+              "codellama:latest",
+              "--Openai--",
               "gpt-4o-mini",
-              "DeepSeek"
+              "--Google--",
+              "learnlm-1.5-pro-experimental"
             ],
-            "default": "ollama",
-            "description": "Select which LLM used for suggestions.",
+            "description": "Select which LLM is used for suggestions.",
             "group": "general"
           },
           "copilot-clone.model.temperature": {
@@ -79,12 +88,6 @@
             "maximum": 1024,
             "description": "Limit the maximum number of tokens allowed for a response.",
             "group": "model"
-          },
-          "copilot-clone.debug.AIEndpoint": {
-            "type": "string",
-            "default": "https://ai.nickrucinski.com/suggestion",
-            "description": "The endpoint the extension will fetch suggestions from.",
-            "group": "debug"
           }
         }
       }
