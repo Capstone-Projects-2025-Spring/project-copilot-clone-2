@@ -5,11 +5,17 @@ import { hasBugRandomly } from "../utils/bug";
 import { trackEvent } from "./log";
 import { getSettings } from "../extension";
 
+const TESTING: boolean = false;
+
 /* Endpoint for creating new AI suggestions */
-const AI_ENDPOINT: string = "https://ai.nickrucinski.com/suggestion";
+const AI_ENDPOINT: string = TESTING ?
+    "http://127.0.0.1:8001/suggestion" :
+    "https://ai.nickrucinski.com/suggestion";
 
 /* Endpoint for saving AI suggestions */
-const LOG_SUGGESTION_ENDPOINT: string = "https://ai.nickrucinski.com/logs/suggestion";
+const LOG_SUGGESTION_ENDPOINT: string = TESTING ?
+    "http://127.0.0.1:8001/logs/suggestion" :
+    "https://ai.nickrucinski.com/logs/suggestion";
 
 /**
  * Fetches AI-generated suggestions based on the given prompt.
@@ -97,10 +103,12 @@ export async function fetchSuggestions(
                 prompt,
                 suggestionText: suggestionText,
                 hasBug,
-                model: model
+                model: model,
+                vendor: vendor
             };
 
             const result = await saveSuggestionToDatabase(suggestion);
+            console.log(result);
             const suggestionId = result.success && result.data ?
                 result.data.id :
                 "";
@@ -145,8 +153,12 @@ export async function fetchSuggestions(
  *
  * @param {Suggestion} suggestion - The suggestion text that was acted upon.
  */
-async function saveSuggestionToDatabase(suggestion: Suggestion) : Promise<Result<Suggestion>> {
-    const body = JSON.stringify(suggestion);
+async function saveSuggestionToDatabase(
+    suggestion: Suggestion
+) : Promise<Result<Suggestion>> {
+    const body = JSON.stringify(
+        suggestion
+    );
 
     try {
         const response = await fetch(LOG_SUGGESTION_ENDPOINT, {
