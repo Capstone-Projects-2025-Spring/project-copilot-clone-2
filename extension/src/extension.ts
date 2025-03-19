@@ -33,6 +33,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(
         acceptSuggestion,
+        incorrectChoicesCommand,
         rejectSuggestion,
         // Sign in with email command 
         vscode.commands.registerCommand('copilotClone.signIn', () => signIn(context)),
