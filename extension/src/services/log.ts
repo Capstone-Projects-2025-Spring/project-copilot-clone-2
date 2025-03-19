@@ -1,5 +1,7 @@
 import { trackEvent } from "../api/log";
+import { globalContext } from "../extension";
 import { LogData, LogEvent } from "../types/event";
+import { AUTH_CONTEXT, AuthContext } from "../types/user";
 
 let suggestionContext = {
     suggestionId: "",
@@ -19,11 +21,13 @@ export const logSuggestionEvent = (accepted: boolean, context: typeof suggestion
     const { suggestionId, hasBug, startTime } = context;
     const elapsedTime = Date.now() - startTime;
 
+    const userContext = globalContext.globalState.get(AUTH_CONTEXT) as AuthContext;
+
     const logEventType = accepted ? LogEvent.USER_ACCEPT : LogEvent.USER_REJECT;
     const logData: LogData = {
         event: logEventType,
         timeLapse: elapsedTime,
-        metadata: { user_id: "12345", suggestion_id: suggestionId, has_bug: hasBug }
+        metadata: { user_id: userContext.user?.id, suggestion_id: suggestionId, has_bug: hasBug }
     };
 
     trackEvent(logData);

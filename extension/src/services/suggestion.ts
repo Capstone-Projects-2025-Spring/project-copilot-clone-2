@@ -2,6 +2,9 @@ import * as vscode from 'vscode';
 import { fetchSuggestions } from '../api/suggestion';
 import { createCodeComparisonWebview } from '../utils/views';
 import { logSuggestionEvent } from './log';
+import { AUTH_CONTEXT, AuthContext } from '../types/user';
+import { signIn } from './auth';
+import { globalContext } from '../extension';
 
 /** 
  * Tracks contextual information for a suggestion, including its unique ID, 
@@ -39,7 +42,7 @@ export async function provideInlineCompletionItems(
     document: vscode.TextDocument,
     position: vscode.Position,
     context: vscode.InlineCompletionContext,
-    token: vscode.CancellationToken
+    token: vscode.CancellationToken,
 ): Promise<vscode.InlineCompletionList | vscode.InlineCompletionItem[]> {
     return new Promise((resolve) => {
         if (debounceTimer) {
@@ -55,6 +58,19 @@ export async function provideInlineCompletionItems(
             if (suggestionsToReview.length > 0) {
                 return;
             } 
+
+            const userContext = globalContext.globalState.get(AUTH_CONTEXT) as AuthContext;
+
+            if (!userContext || !userContext.isAuthenticated) {
+                const choice = await vscode.window.showInformationMessage(
+                    "You are not authenticated. Please sign in to track your progress!",
+                    "Sign In"
+                );
+        
+                if (choice === "Sign In") {
+                    await signIn(globalContext);
+                }
+            }
 
             if (lastRequest) {
                 const { document, position, context, token } = lastRequest;
