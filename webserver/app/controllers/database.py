@@ -20,7 +20,7 @@ def get_db() -> Client:
                 flow_type="pkce"
             ),
         )
-        return g.db
+    return g.db
 
 client: Client = LocalProxy(get_db)
 

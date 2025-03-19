@@ -43,7 +43,10 @@ export async function activate(context: vscode.ExtensionContext) {
 }
 
 // Debug command to force a fetch using input from the user.
-const testFetchCommand = vscode.commands.registerCommand('copilotClone.testFetch', async () => {
+const testFetchCommand = vscode.commands.registerCommand(
+    'copilotClone.testFetch',
+    async () => {
+        
     const userInput = await vscode.window.showInputBox({
         prompt: 'Enter prompt for suggestion.',
     });
@@ -51,17 +54,17 @@ const testFetchCommand = vscode.commands.registerCommand('copilotClone.testFetch
 
     if (userInput) {
         try {
-            const settings = getSettings();
-            const result = await fetchSuggestions(userInput, settings["model"], settings["temperature"], settings["top_k"], 
-                    settings["top_p"], settings["max_tokens"]);
-                    
+            const result = await fetchSuggestions(userInput);
             if (result.success) {
                 vscode.window.showInformationMessage(`Suggestions: ${result.data.suggestions.join(", ")}`);
             } else {
                 vscode.window.showErrorMessage(`Error: ${result.error}`);
             }
+            console.log(result);
+        
         } catch (error) {
-            vscode.window.showErrorMessage(`Error fetching suggestions: Unknown Error`);
+            console.log(error);
+            vscode.window.showErrorMessage(`Error: ${error}`);
         }
     }
 });
@@ -72,7 +75,7 @@ const incorrectChoicesCommand = vscode.commands.registerCommand('copilotClone.vi
     const incorrectChoices = getIncorrectChoices(userId);
     
     if (incorrectChoices.length === 0){
-        vscode.window.showInformationMessage("User does has not chosen an incorrect code suggestion.")
+        vscode.window.showInformationMessage("User does has not chosen an incorrect code suggestion.");
     } else {
         vscode.window.showInformationMessage(`Incorrect Choices:\n${incorrectChoices.map(choice => `- ${choice.suggestion}`).join("\n")}`);
     }
@@ -84,13 +87,14 @@ const incorrectChoicesCommand = vscode.commands.registerCommand('copilotClone.vi
  * @returns {Object} The settings for the AI model, including model selection, temperature, top_k, top_p, and max_tokens.
  */
 export function getSettings() {
+    const vendor = vscode.workspace.getConfiguration("copilot-clone").get<string>("general.vendor");
     const model = vscode.workspace.getConfiguration("copilot-clone").get<string>("general.modelSelection");
     const temperature = vscode.workspace.getConfiguration("copilot-clone").get<number>("model.temperature");
     const top_k = vscode.workspace.getConfiguration("copilot-clone").get<number>("model.top_k");
     const top_p = vscode.workspace.getConfiguration("copilot-clone").get<number>("model.top_p");
     const max_tokens = vscode.workspace.getConfiguration("copilot-clone").get<number>("model.maxTokens");
 
-    return { model, temperature, top_k, top_p, max_tokens };
+    return { vendor, model, temperature, top_k, top_p, max_tokens };
 }
 
 /**
