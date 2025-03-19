@@ -19,7 +19,10 @@ def get_user_by_id(user_id: str):
         Exception: If there is an error during the database query.
     """
     try:
+        print("Calling Supabase client...")  # Debugging line
         response = client.table("users").select("*").eq("id", user_id).execute()
+        print("Got response:", response)
+
         if not response.data:
             return None
         
@@ -28,7 +31,7 @@ def get_user_by_id(user_id: str):
     
     except Exception as e:
         print(f"Error fetching user {user_id}: {e}")
-        raise e
+        raise DatabaseError(f"Failed to retrieve user: {str(e)}")
 
 
 def create_user(first_name: str, last_name: str, email: str, password: str):

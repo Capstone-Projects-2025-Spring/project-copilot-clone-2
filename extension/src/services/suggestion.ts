@@ -107,13 +107,13 @@ export const acceptSuggestion = vscode.commands.registerCommand(
             ).then(async (selection) => {
                 if (selection === 'Review Code') {
                     // Get the original code (before the suggestion)
-                    const rigthCode = suggestionContext.suggestions[0];
+                    const rightCode = suggestionContext.suggestions[0];
 
                     // Get the suggested code (from the suggestion context)
                     const wrongCode = suggestionContext.suggestions[1];
 
                     // Create a Webview to display the code comparison
-                    createCodeComparisonWebview(rigthCode, wrongCode);
+                    createCodeComparisonWebview(rightCode, wrongCode);
 
                     resetSuggestionContext();
                 }
