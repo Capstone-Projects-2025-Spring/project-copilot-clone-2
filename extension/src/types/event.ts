@@ -13,5 +13,6 @@ export enum LogEvent {
 
 export interface LogData {
     event: LogEvent;
+    timeLapse: number;
     metadata: Record<string, any>;
 }

@@ -22,7 +22,8 @@ export const logSuggestionEvent = (accepted: boolean, context: typeof suggestion
     const logEventType = accepted ? LogEvent.USER_ACCEPT : LogEvent.USER_REJECT;
     const logData: LogData = {
         event: logEventType,
-        metadata: { time_lapse: elapsedTime, user_id: "12345", suggestion_id: suggestionId, has_bug: hasBug }
+        timeLapse: elapsedTime,
+        metadata: { user_id: "12345", suggestion_id: suggestionId, has_bug: hasBug }
     };
 
     trackEvent(logData);

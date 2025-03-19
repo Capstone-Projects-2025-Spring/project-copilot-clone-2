@@ -143,7 +143,8 @@ async function signInOrSignUpEmail(context: vscode.ExtensionContext) {
 
         const logData: LogData = {
             event: logEventType,
-            metadata: { time_lapse: 0, user_id: data.user?.id, email: data.user?.email }
+            timeLapse: 0,
+            metadata: { user_id: data.user?.id, email: data.user?.email }
         };
 
         trackEvent(logData);
@@ -182,8 +183,8 @@ async function signInWithGithub(context: vscode.ExtensionContext){
             const user = sessionData.session.user;
             const logData: LogData = {
                 event: LogEvent.USER_AUTH_GITHUB,
-                
-                metadata: { time_lapse: 0, user_id: user.id, email: user.email }
+                timeLapse: 0,
+                metadata: { user_id: user.id, email: user.email }
             };
     
             trackEvent(logData);

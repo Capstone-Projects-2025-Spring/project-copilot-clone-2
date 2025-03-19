@@ -6,7 +6,7 @@ import requests
 
 def getSuggestion(
     prompt: str,
-    vendor: str = vendors.Ollama,
+    vendor: str = vendors.Google,
     model_name: str = "codellama",
     temperature: float = 0.2,
     top_p: float = 1,
