@@ -13,6 +13,8 @@ const AI_ENDPOINT: string = TESTING ?
     "https://ai.nickrucinski.com/suggestion";
 
 /* Endpoint for saving AI suggestions */
+const LOCAL_LOG_SUGGESTION_ENDPOINT: string = "http://127.0.0.1:8001/logs/suggestion";
+
 const LOG_SUGGESTION_ENDPOINT: string = TESTING ?
     "http://127.0.0.1:8001/logs/suggestion" :
     "https://ai.nickrucinski.com/logs/suggestion";
@@ -28,6 +30,7 @@ export async function fetchSuggestions(
 ): Promise<Result<SuggestionResult>> {
     const startTime = Date.now();
     const hasBug = hasBugRandomly();
+    let elapsedTime = null;
 
     const settings = getSettings();
 
@@ -72,6 +75,9 @@ export async function fetchSuggestions(
             ),
         });
 
+        const endTime = Date.now(); 
+        elapsedTime = endTime - startTime;
+
         if (!response.ok) {
             return {
                 status: response.status,
@@ -80,57 +86,31 @@ export async function fetchSuggestions(
             };
         }
 
-        const data = await response.json() as {
-            data?: {
-                suggestions: string[];
-            };
-            message?: string;
-            status?: string;
-            error?: string;
-        };
+        const data = await response.json() as { data: { suggestions?: string[][] }; error?: string };
 
-
-        const endTime = Date.now(); 
-        const elapsedTime = endTime - startTime;
-
-        if (data.data?.suggestions && data.data.suggestions.length > 0) {
-            const suggestionText = hasBug ?
-                data.data.suggestions[1] :
-                data.data.suggestions[0];
-
+        if (data.data?.suggestions?.length) {
+            const suggestionsArray = data.data.suggestions[0];
             const suggestion: Suggestion = {
                 id: "",
                 prompt,
-                suggestionText: suggestionText,
+                suggestionText: hasBug ? suggestionsArray[1] : suggestionsArray[0],
                 hasBug,
                 model: model,
                 vendor: vendor
             };
 
             const result = await saveSuggestionToDatabase(suggestion);
-            console.log(result);
-            const suggestionId = result.success && result.data ?
-                result.data.id :
-                "";
+            const suggestionId = result.success ? result.data : "";
 
             const logData: LogData = {
                 event: LogEvent.MODEL_GENERATE,
-                metadata: {
-                    time_lapse: elapsedTime,
-                    suggestion_id: suggestionId,
-                    has_bug: hasBug },
+                timeLapse: elapsedTime,
+                metadata: { suggestion_id: suggestionId, has_bug: hasBug },
             };
     
             trackEvent(logData);
 
-            return {
-                status: response.status,
-                success: true,
-                data: {
-                    suggestions: data.data.suggestions,
-                    suggestionId, hasBug
-                }
-            };
+            return { status: response.status, success: true, data: { suggestions: suggestionsArray, suggestionId, hasBug } };
         }
 
         return {
@@ -153,40 +133,34 @@ export async function fetchSuggestions(
  *
  * @param {Suggestion} suggestion - The suggestion text that was acted upon.
  */
-async function saveSuggestionToDatabase(
-    suggestion: Suggestion
-) : Promise<Result<Suggestion>> {
-    const body = JSON.stringify(
-        suggestion
-    );
+async function saveSuggestionToDatabase(suggestion: Suggestion) : Promise<Result<string>> {
+    const body = JSON.stringify(suggestion);
 
     try {
-        const response = await fetch(LOG_SUGGESTION_ENDPOINT, {
+        const response = await fetch(LOCAL_LOG_SUGGESTION_ENDPOINT, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+                "Content-Type": "application/json",
+            },
             body: body,
         });
 
         if (!response.ok) {
-            return {
-                status: response.status,
-                success: false,
-                error: `Error: ${response.status} ${response.statusText}`,
-            };
+            throw new Error(`${response.status} ${response.statusText}`);
         }
 
-        const data = await response.json();
+        const result = await response.json();
         return {
             status: response.status,
             success: true,
-            data: data.data,
+            data: result.data as string,
         };
-    } catch (err) {
-        console.error("Failed to save suggestion:", err);
+    } catch (error: any) {
+        console.error("Error saving suggestion: ", error);
         return {
             status: 500,
             success: false,
-            error: "Failed to connect to server.",
+            error: error.message,
         };
     }
 }

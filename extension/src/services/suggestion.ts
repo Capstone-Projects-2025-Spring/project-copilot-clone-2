@@ -2,6 +2,9 @@ import * as vscode from 'vscode';
 import { fetchSuggestions } from '../api/suggestion';
 import { createCodeComparisonWebview } from '../utils/views';
 import { logSuggestionEvent } from './log';
+import { AUTH_CONTEXT, AuthContext } from '../types/user';
+import { signIn } from './auth';
+import { globalContext } from '../extension';
 
 /** 
  * Tracks contextual information for a suggestion, including its unique ID, 
@@ -13,6 +16,12 @@ let suggestionContext = {
     hasBug: false,
     startTime: 0
 };
+
+/** 
+ * Stores suggestions that need to be reviewed by the user. 
+ * This is used when a suggestion is accepted but contains a bug.
+ */
+let suggestionsToReview: string[] = [];
 
 /** Timeout handler for debouncing text changes */
 let debounceTimer: NodeJS.Timeout | null = null;
@@ -33,7 +42,7 @@ export async function provideInlineCompletionItems(
     document: vscode.TextDocument,
     position: vscode.Position,
     context: vscode.InlineCompletionContext,
-    token: vscode.CancellationToken
+    token: vscode.CancellationToken,
 ): Promise<vscode.InlineCompletionList | vscode.InlineCompletionItem[]> {
     return new Promise((resolve) => {
         if (debounceTimer) {
@@ -45,6 +54,24 @@ export async function provideInlineCompletionItems(
 
         // Set a new timer
         debounceTimer = setTimeout(async () => {
+            console.log("Debounce timer triggered for inline suggestion...", suggestionsToReview.length);
+            if (suggestionsToReview.length > 0) {
+                return;
+            } 
+
+            const userContext = globalContext.globalState.get(AUTH_CONTEXT) as AuthContext;
+
+            if (!userContext || !userContext.isAuthenticated) {
+                const choice = await vscode.window.showInformationMessage(
+                    "You are not authenticated. Please sign in to track your progress!",
+                    "Sign In"
+                );
+        
+                if (choice === "Sign In") {
+                    await signIn(globalContext);
+                }
+            }
+
             if (lastRequest) {
                 const { document, position, context, token } = lastRequest;
                 const prompt = getPromptText(document, position);
@@ -99,24 +126,25 @@ export const acceptSuggestion = vscode.commands.registerCommand(
         await vscode.commands.executeCommand('editor.action.inlineSuggest.commit');
 
         if (suggestionContext.hasBug) {
+            suggestionsToReview = suggestionContext.suggestions;
             vscode.window.showWarningMessage(
                 'Warning: The accepted suggestion may contain a bug. Please review the code carefully.',
-                { modal: true },
+                { modal: false },
                 'Review Code',
                 'Ignore'
             ).then(async (selection) => {
                 if (selection === 'Review Code') {
                     // Get the original code (before the suggestion)
-                    const rightCode = suggestionContext.suggestions[0];
+                    const rigthCode = suggestionsToReview[0];
 
                     // Get the suggested code (from the suggestion context)
-                    const wrongCode = suggestionContext.suggestions[1];
+                    const wrongCode = suggestionsToReview[1];
 
                     // Create a Webview to display the code comparison
-                    createCodeComparisonWebview(rightCode, wrongCode);
-
-                    resetSuggestionContext();
+                    createCodeComparisonWebview(rigthCode, wrongCode);
                 }
+
+                resetSuggestionContext();
             });
         }
 
@@ -152,4 +180,5 @@ const resetSuggestionContext = () => {
         hasBug: false,
         startTime: 0
     };
+    suggestionsToReview = [];
 };
