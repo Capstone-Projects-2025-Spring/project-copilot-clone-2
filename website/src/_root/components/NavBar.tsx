@@ -21,7 +21,7 @@ const NavBar = () => {
             </Link>
           </li>
           <li>
-            <Link to="/login" className="px-3 py-1 md:px-4 md:py-2 bg-[#50B498] text-black font-semibold rounded-lg hover:bg-white hover:text-black transition">
+            <Link to="/signup" className="px-3 py-1 md:px-4 md:py-2 bg-[#50B498] text-black font-semibold rounded-lg hover:bg-white hover:text-black transition">
              Sign Up
             </Link>
           </li>
