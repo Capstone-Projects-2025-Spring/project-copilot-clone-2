@@ -6,6 +6,7 @@ import Quiz from "./_root/pages/Quiz";
 import Landing from "./_root/pages/Landing";
 import LogIn from "./_root/pages/LogIn";
 import SignUp from "./_root/pages/SignUp";
+import About from "./_root/pages/About";
 
 const App = () => {
   return (
@@ -17,6 +18,7 @@ const App = () => {
           <Route path="/quiz" element={<Quiz />} />
           <Route path="/login" element={<LogIn />} />
           <Route path="/signup" element={<SignUp />} />
+          <Route path="/about" element={<About />} />
         </Route>
       </Routes>
     </main>

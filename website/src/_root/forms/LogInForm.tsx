@@ -12,7 +12,7 @@ const LoginForm: React.FC = () => {
   const handleGitHubLogin = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "github",
-      options: { redirectTo: "https://localhost:5173" }, // Update redirect URL
+      options: { redirectTo: "https://rlzwhkbdoolpxarzflgt.supabase.co/auth/v1/callback" }, // Update redirect URL
     });
 
     if (error) {
