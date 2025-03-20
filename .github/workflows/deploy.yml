@@ -23,34 +23,34 @@ jobs:
 
       - name: Create .env file
         run: |
-          cd webserver
+          cd server
           echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> .env
           echo "SUPABASE_KEY=${{ secrets.SUPABASE_KEY }}" >> .env
 
       - name: Install dependencies
         run: |
-          cd webserver
+          cd server
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
       - name: Generate Coverage Report
         run: |
-          cd webserver
+          cd server
           coverage run -m pytest tests/ -v
           coverage html
           cd ../
           rm -rf documentation/static/htmlcov
-          mv webserver/htmlcov documentation/static/
+          mv server/htmlcov documentation/static/
 
       - name: Generate Python documentation
         run: |
-          cd webserver/docs
+          cd server/docs
           python -m sphinx.cmd.build -b html source build
 
       - name: Upload flaskdocs
         run: |
           rm -rf documentation/static/flaskdoc
-          mv webserver/docs/build documentation/static/flaskdoc
+          mv server/docs/build documentation/static/flaskdoc
           
       - name: Generate OpenAPI documentation
         run: |
@@ -71,7 +71,7 @@ jobs:
           cd extension
           npx typedoc src --entryPointStrategy expand --plugin typedoc-theme-hierarchy --theme hierarchy --readme none
           cd ../
-          mv webserver/docs/tsdoc documentation/static/tsdoc
+          mv server/docs/tsdoc documentation/static/tsdoc
 
       - name: Debug Documentation Files
         run: ls -R documentation/static/
