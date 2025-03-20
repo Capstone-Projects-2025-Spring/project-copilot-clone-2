@@ -39,7 +39,11 @@
           "copilot-clone.general.vendor": {
             "type": "string",
             "default": "ollama",
-            "enum": ["ollama", "openai", "google"],
+            "enum": [
+              "ollama",
+              "openai",
+              "google"
+            ],
             "description": "Choose the vendor providing the model."
           },
           "copilot-clone.general.modelSelection": {

@@ -16,6 +16,10 @@
 				"${workspaceFolder}/out/**/*.js"
 			],
 			"preLaunchTask": "${defaultBuildTask}",
+			"env": {
+					"SUPABASE_URL": "https://rlzwhkbdoolpxarzflgt.supabase.co",
+					"SUPABASE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJsendoa2Jkb29scHhhcnpmbGd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA3OTY2OTUsImV4cCI6MjA1NjM3MjY5NX0.BC5dkZTtjWKt71bs19L57ncahsZEU7yAHunfkXiqYXM"
+			}
 		}
 	]
 }

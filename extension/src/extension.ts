@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { checkAndStoreSupabaseSecrets } from './configs/supabaseClient';
+// import { checkAndStoreSupabaseSecrets } from './configs/supabaseClient';
 import { fetchSuggestions } from './api/suggestion';
 import { acceptSuggestion, rejectSuggestion, provideInlineCompletionItems } from './services/suggestion';
 import { getIncorrectChoices } from './incorrectTracker';
@@ -17,10 +17,6 @@ export let globalContext: vscode.ExtensionContext;
  */
 export async function activate(context: vscode.ExtensionContext) {
     globalContext = context;
-
-    // Load environment variables from .env file
-    const secretStorage = context.secrets;
-    checkAndStoreSupabaseSecrets(secretStorage);
 
     console.log("AI Extension Activated");
 

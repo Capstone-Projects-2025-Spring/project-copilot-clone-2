@@ -37,7 +37,7 @@ async function setAuthContext(
  * @param {vscode.ExtensionContext} context - The VS Code extension context.
  */
 export async function checkUserSignIn(context: vscode.ExtensionContext) {
-    const supabase = await getSupabaseClient(context);
+    const supabase = getSupabaseClient();
     if (!supabase) {
         throw new Error('Supabase client initialization failed.');
     }
@@ -94,7 +94,7 @@ export async function signIn(context: vscode.ExtensionContext){
  */
 //want to make it to sign up but need to look at database, this works for now 
 export async function signInOrSignUpEmail(context: vscode.ExtensionContext) {
-    const supabase = await getSupabaseClient(context);
+    const supabase = getSupabaseClient();
     if (!supabase) {
         vscode.window.showErrorMessage('Supabase client initialization failed.');
         return;
@@ -145,7 +145,7 @@ export async function signInOrSignUpEmail(context: vscode.ExtensionContext) {
  * @param {vscode.ExtensionContext} context - The VS Code extension context.
  */
 export async function signInWithGithub(context: vscode.ExtensionContext){  
-    const supabase = await getSupabaseClient(context);
+    const supabase = getSupabaseClient();
     try {
         // Redirect to GitHub for authentication
             vscode.window.showInformationMessage("Redirecting to GitHub for authentication...");
