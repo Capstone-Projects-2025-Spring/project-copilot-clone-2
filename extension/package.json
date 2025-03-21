@@ -38,18 +38,33 @@
     ],
     "configuration": [
       {
+<<<<<<< HEAD
         "title": "Clover",
         "properties": {
           "clover.general.modelSelection": {
+=======
+        "title": "Copilot Clone Settings",
+        "properties": {
+          "copilot-clone.general.vendor": {
             "type": "string",
-            "enum": [
-              "ollama",
-              "gpt-4o",
-              "gpt-4o-mini",
-              "DeepSeek"
-            ],
             "default": "ollama",
-            "description": "Select which LLM used for suggestions.",
+            "enum": ["ollama", "openai", "google"],
+            "description": "Choose the vendor providing the model."
+          },
+          "copilot-clone.general.modelSelection": {
+>>>>>>> dev
+            "type": "string",
+            "default": "codellama:7b",
+            "enum": [
+              "--Ollama--",
+              "codellama:7b",
+              "codellama:latest",
+              "--Openai--",
+              "gpt-4o-mini",
+              "--Google--",
+              "learnlm-1.5-pro-experimental"
+            ],
+            "description": "Select which LLM is used for suggestions.",
             "group": "general"
           },
           "clover.model.temperature": {
@@ -83,12 +98,15 @@
             "maximum": 1024,
             "description": "Limit the maximum number of tokens allowed for a response.",
             "group": "model"
+<<<<<<< HEAD
           },
           "clover.debug.AIEndpoint": {
             "type": "string",
             "default": "https://ai.nickrucinski.com/suggestion",
             "description": "The endpoint the extension will fetch suggestions from.",
             "group": "debug"
+=======
+>>>>>>> dev
           }
         }
       }

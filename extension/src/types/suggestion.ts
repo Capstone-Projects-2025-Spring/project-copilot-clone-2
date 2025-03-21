@@ -4,6 +4,7 @@ export interface Suggestion {
     prompt: string;
     suggestionText: string;
     hasBug: boolean;
+    vendor?: string;
     model?: string;
 }
 
