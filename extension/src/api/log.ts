@@ -1,7 +1,8 @@
 import { LogData, LogEvent } from "../types/event";
+import { convertToSnakeCase } from "../utils";
 
 /** Endpoint for logging information */
-const LOG_ENDPOINT: string = "https://ai.nickrucinski.com/logs";
+const LOG_ENDPOINT: string = "api.nickrucinski.com/logs";
 
 /**
  * Logs the user's decision on an AI-generated suggestion.
@@ -9,13 +10,13 @@ const LOG_ENDPOINT: string = "https://ai.nickrucinski.com/logs";
  * @param {LogData} logData - The data being logged.
  */
 export function trackEvent(logData: LogData): void {
-    const body = JSON.stringify(logData);
+    const logDataForBackend = convertToSnakeCase(logData);
 
-    console.log("Logging event...", logData.event);
+    console.log("Logging data for event:", logDataForBackend.event);
 
     fetch(LOG_ENDPOINT, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: body,
+        body: JSON.stringify(logDataForBackend),
     }).catch(err => console.error("Failed to log data:", err));
 }

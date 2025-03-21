@@ -52,7 +52,6 @@ const Dashboard = () => {
 
   const apiUrl = "https://api.nickrucinski.com"
 
-  const [aiModel] = useState<string[]>(["Ollama AI"]);
 
   useEffect(() => {
     fetch(`${apiUrl}/users/9c6be8f6-3e9b-446e-8c26-4bb38ee071c5`)

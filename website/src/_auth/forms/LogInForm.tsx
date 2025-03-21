@@ -1,18 +1,7 @@
-import { useNavigate } from 'react-router-dom'
+
 
 const LogInForm = () => {
-  const navigate = useNavigate()
-
-  return (
-    <div>
-      <button
-        onClick={() => navigate('/signup')}
-        className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
-      >
-        Go to Sign Up
-      </button>
-    </div>
-  )
+  return (<div className= "flex flex-1 justify-center items-center"> <h1> hi </h1> </div>)
 }
 
-export default LogInForm
+export default LogInForm;

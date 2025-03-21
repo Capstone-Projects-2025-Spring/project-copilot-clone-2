@@ -3,10 +3,10 @@ import * as vscode from 'vscode';
 /**
  * Creates a Webview panel to display two code snippets side by side.
  *
- * @param rigthCode - The original code snippet.
+ * @param rightCode - The original code snippet.
  * @param wrongCode - The suggested code snippet.
  */
-export const createCodeComparisonWebview = (rigthCode: string, wrongCode: string) => {
+export const createCodeComparisonWebview = (rightCode: string, wrongCode: string) => {
     // Create a new Webview panel
     const panel = vscode.window.createWebviewPanel(
         'codeComparison', // Unique ID for the panel
@@ -19,17 +19,17 @@ export const createCodeComparisonWebview = (rigthCode: string, wrongCode: string
     );
 
     // Render the HTML content
-    panel.webview.html = getWebviewContent(rigthCode, wrongCode);
+    panel.webview.html = getWebviewContent(rightCode, wrongCode);
 };
 
 /**
  * Generates the HTML content for the Webview.
  *
- * @param rigthCode - The original code snippet.
+ * @param rightCode - The original code snippet.
  * @param wrongCode - The suggested code snippet.
  * @returns The HTML content as a string.
  */
-const getWebviewContent = (rigthCode: string, wrongCode: string): string => {
+const getWebviewContent = (rightCode: string, wrongCode: string): string => {
     return `
         <!DOCTYPE html>
         <html lang="en">
@@ -64,7 +64,7 @@ const getWebviewContent = (rigthCode: string, wrongCode: string): string => {
         <body>
             <div class="code-container">
                 <h3>Correct Code</h3>
-                <pre>${escapeHtml(rigthCode)}</pre>
+                <pre>${escapeHtml(rightCode)}</pre>
             </div>
             <div class="code-container">
                 <h3>Incorrect Code</h3>
