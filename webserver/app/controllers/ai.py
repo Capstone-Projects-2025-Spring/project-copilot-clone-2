@@ -7,7 +7,7 @@ import google.generativeai as genai
 
 
 OLLAMA_URL = "http://localhost:11434/api/generate"  
-DEFAULT_MODEL_NAME = "codellama:latest"
+DEFAULT_MODEL_NAME = "codellama:7b"
 
 # system command to create a special AI model
 # {
@@ -41,20 +41,28 @@ class vendors(Enum):
     Ollama = "ollama"
     Google = "google"
 
-def get_ai():
-    if "ai" not in g:
-        g.ai = OpenAI(api_key=current_app.config["OPENAI_API_KEY"])
+default_openai_parameters = {
+    "temperature": 0.2,
+    "top_p": 1,
+    "top_k": 1,
+    "max_tokens": 256,
+}
+
+def get_openai():
+    with current_app.app_context():
+        if "ai" not in g:
+            g.ai = OpenAI(api_key=current_app.config["OPENAI_API_KEY"])
         return g.ai
 def get_gemini():
     if "gemini" not in g:
         genai.configure(api_key=current_app.config["GEMINI_API_KEY"])
         # Create the model
         generation_config = {
-        "temperature": 1,
-        "top_p": 0.95,
-        "top_k": 64,
-        "max_output_tokens": 8192,
-        "response_mime_type": "text/plain",
+            "temperature": 1,
+            "top_p": 0.95,
+            "top_k": 64,
+            "max_output_tokens": 8192,
+            "response_mime_type": "text/plain",
         }
         g.gemini = genai.GenerativeModel(
             model_name="learnlm-1.5-pro-experimental",
@@ -63,7 +71,7 @@ def get_gemini():
         g.gemini.chat_session = g.gemini.start_chat(
             history=[]
         )
-        return g.gemini
+    return g.gemini
     
-client = LocalProxy(get_ai)
+openai_client = LocalProxy(get_openai)
 gemini_client = LocalProxy(get_gemini)
