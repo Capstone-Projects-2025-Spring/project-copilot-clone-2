@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { createClient, Session, SupabaseClient } from '@supabase/supabase-js';
 
+let supabase: SupabaseClient | null = null;
 /**
  * Retrieves stored Supabase credentials from VS Code's secret storage and initializes a Supabase client.
  *
@@ -8,6 +9,9 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
  * @returns {Promise<SupabaseClient | null>} The initialized Supabase client, or null if credentials are missing.
  */
 export async function getSupabaseClient(context: vscode.ExtensionContext): Promise<SupabaseClient | null> {
+    if (supabase){
+        return supabase;
+    }
     const secretStorage = context.secrets;
 
     // Retrieve stored credentials
@@ -23,6 +27,24 @@ export async function getSupabaseClient(context: vscode.ExtensionContext): Promi
     return createClient(supabaseUrl, supabaseAnonKey);
 }
 
+/**
+ * Check if user is authenticated
+ * 
+ * @returns {Promise<Session | null>} The current session, or null if the user is not authenticated.
+ */
+export async function getAuthenticatedSess(): Promise<Session | null> {
+    if (!supabase) {
+        return null;
+    }
+    const {data, error} = await supabase.auth.getSession();
+
+    if (error) {
+        vscode.window.showErrorMessage(`Failed to get session: ${error.message}`);
+        return null;
+    }
+
+    return data?.session ?? null;
+}
 /**
  * Checks if Supabase credentials are stored in VS Code's secret storage.
  * If missing, it retrieves them from environment variables and stores them securely.
