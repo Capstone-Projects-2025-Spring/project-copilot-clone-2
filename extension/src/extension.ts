@@ -59,6 +59,7 @@ const testFetchCommand = vscode.commands.registerCommand('clover.testFetch', asy
             const settings = getSettings();
             const result = await fetchSuggestions(userInput, settings["model"], settings["temperature"], settings["top_k"], 
                     settings["top_p"], settings["max_tokens"]);
+                console.log(result);
                     
             if (result.success) {
                 vscode.window.showInformationMessage(`Suggestions: ${result.data.suggestions.join(", ")}`);

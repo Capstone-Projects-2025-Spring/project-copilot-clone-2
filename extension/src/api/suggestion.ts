@@ -5,7 +5,7 @@ import { hasBugRandomly } from "../utils/bug";
 import { trackEvent } from "./log";
 
 /* Endpoint for creating new AI suggestions */
-const AI_ENDPOINT: string = "http://127.0.0.1:8001/suggestion";
+const AI_ENDPOINT: string = "https://api.nickrucinski.com/suggestion";
 
 /* Endpoint for saving AI suggestions */
 const LOG_SUGGESTION_ENDPOINT: string = "https://ai.nickrucinski.com/logs/suggestion";
