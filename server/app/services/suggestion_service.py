@@ -81,11 +81,28 @@ def getSuggestionFromOpenAI(
             model_params = default_openai_parameters  # Use a default config
         
         if is_correct:
-            system_message = "SYSTEM: Complete the following code correctly:"
+            system_message = """You are an AI coding assistant. Your goal is to autocomplete and extend the user's code seamlessly, predicting what they are likely to write next.
+
+                                Follow these rules explicitly:
+                                - Provide only the completion—no explanations, comments, or markdown formatting.
+                                - Base your predictions on best practices, patterns, and context from the given code.
+                                - Aim for concise and efficient solutions that align with the user's coding style.
+                                - Always act as if you are an inline code completion tool, not a chatbot.
+                                - Avoid markdown or any extra formatting.
+                                - Never repeat the user or their code, continue exactly where they left off."""
         else:
             system_message = (
-                "SYSTEM: Complete the following code, but introduce a small mistake "
-                "(like a syntax error, incorrect logic, or missing a crucial step)."
+                """You are an AI coding assistant. Your goal is to autocomplete and extend the user's code seamlessly, predicting what they are likely to write next.
+
+                    Follow these rules explicitly:
+                    - Provide only the completion—no explanations, comments, or markdown formatting.
+                    - Base your predictions on best practices, patterns, and context from the given code.
+                    - Aim for concise and efficient solutions that align with the user's coding style.
+                    - Always act as if you are an inline code completion tool, not a chatbot.
+                    - Avoid markdown or any extra formatting.
+                    - Never repeat the user or their code, continue exactly where they left off.
+                    
+                    This suggestions should be slightly incorrect. Insert a incorrect change, like a syntactical mistake or misnaming a variable."""
             )
 
         messages = [
@@ -101,7 +118,10 @@ def getSuggestionFromOpenAI(
                 messages=messages
             )
 
-            return completion.choices[0].message.content
+            suggestion = completion.choices[0].message.content.strip("```")
+            suggestion = completion.choices[0].message.content.lstrip(prompt)
+
+            return suggestion
     
     except Exception as e:
         print(f"Error generating suggestion using OpenAI's API: {e}")
