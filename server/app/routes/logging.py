@@ -143,7 +143,7 @@ def get_all_logs_route():
         )
 
 
-@logging_bp.route('/logs/<int:user_id>', methods=['GET'])
+@logging_bp.route('/logs/<string:user_id>', methods=['GET'])
 @swag_from({
     'tags': ['Logging'],
     'summary': 'TODO Retrieve logs by user ID',
@@ -153,7 +153,7 @@ def get_all_logs_route():
             'name': 'user_id',
             'in': 'path',
             'required': True,
-            'type': 'integer',
+            'type': 'string',
             'description': 'The ID of the user whose logs are being retrieved.',
             'example': 12345
         }
