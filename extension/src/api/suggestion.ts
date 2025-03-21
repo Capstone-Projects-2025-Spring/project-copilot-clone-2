@@ -10,14 +10,14 @@ const TESTING: boolean = false;
 /* Endpoint for creating new AI suggestions */
 const AI_ENDPOINT: string = TESTING ?
     "http://127.0.0.1:8001/suggestion" :
-    "https://ai.nickrucinski.com/suggestion";
+    "https://api.nickrucinski.com/suggestion";
 
 /* Endpoint for saving AI suggestions */
-const LOCAL_LOG_SUGGESTION_ENDPOINT: string = "http://127.0.0.1:8001/logs/suggestion";
+const LOCAL_LOG_SUGGESTION_ENDPOINT: string = "api.nickrucinski.com/logs/suggestion";
 
 const LOG_SUGGESTION_ENDPOINT: string = TESTING ?
     "http://127.0.0.1:8001/logs/suggestion" :
-    "https://ai.nickrucinski.com/logs/suggestion";
+    "https://api.nickrucinski.com/logs/suggestion";
 
 /**
  * Fetches AI-generated suggestions based on the given prompt.

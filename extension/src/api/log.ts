@@ -2,7 +2,7 @@ import { LogData, LogEvent } from "../types/event";
 import { convertToSnakeCase } from "../utils";
 
 /** Endpoint for logging information */
-const LOG_ENDPOINT: string = "http://127.0.0.1:8001/logs";
+const LOG_ENDPOINT: string = "api.nickrucinski.com/logs";
 
 /**
  * Logs the user's decision on an AI-generated suggestion.

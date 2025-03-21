@@ -83,7 +83,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">activate_virtualenv</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Activate the virtual environment.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">VENV_DIR</span><span class="p">):</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Virtual environment not found. Please create one with &#39;python -m venv venv&#39;.&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Virtual environment not found. Please create one with &#39;python -m venv .venv&#39;.&quot;</span><span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="n">activate_script</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">VENV_DIR</span><span class="p">,</span> <span class="s2">&quot;Scripts&quot;</span> <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;nt&quot;</span> <span class="k">else</span> <span class="s2">&quot;bin&quot;</span><span class="p">,</span> <span class="s2">&quot;activate&quot;</span><span class="p">)</span>

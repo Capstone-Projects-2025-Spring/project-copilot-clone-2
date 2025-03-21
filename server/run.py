@@ -5,12 +5,13 @@ import sys
 VENV_DIR = ".venv"
 DOCS_DIR = "docs"
 FLASK_PORT = "8001"
+FLASK_HOST = "0.0.0.0"
 TESTS_DIR = "tests"
 
 def activate_virtualenv():
     """Activate the virtual environment."""
     if not os.path.exists(VENV_DIR):
-        print("Virtual environment not found. Please create one with 'python -m venv venv'.")
+        print("Virtual environment not found. Please create one with 'python -m venv .venv'.")
         sys.exit(1)
 
     activate_script = os.path.join(VENV_DIR, "Scripts" if os.name == "nt" else "bin", "activate")
@@ -48,7 +49,7 @@ def run_tests():
 def run_flask():
     """Run the Flask application."""
     flask_loc = os.path.join(VENV_DIR, "Scripts" if os.name == "nt" else "bin", "flask.exe" if os.name == "nt" else "flask")
-    subprocess.run([flask_loc, "--app", "app", "run", "--debug", "--port", FLASK_PORT])
+    subprocess.run([flask_loc, "--app", "app", "run", "--debug", "--port", FLASK_PORT, "--host", FLASK_HOST])
 
 if __name__ == "__main__":
     activate_virtualenv()
