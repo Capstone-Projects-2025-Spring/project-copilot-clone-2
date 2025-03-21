@@ -35,7 +35,7 @@ export async function activate(context: vscode.ExtensionContext) {
         acceptSuggestion,
         rejectSuggestion,
         // Sign in with email command 
-        vscode.commands.registerCommand('copilotClone.signIn', () => signIn(context)),
+        vscode.commands.registerCommand('clover.signIn', () => signIn(context)),
         testFetchCommand,
         // Inline completion provider
         vscode.languages.registerInlineCompletionItemProvider(
@@ -48,7 +48,7 @@ export async function activate(context: vscode.ExtensionContext) {
 }
 
 // Debug command to force a fetch using input from the user.
-const testFetchCommand = vscode.commands.registerCommand('copilotClone.testFetch', async () => {
+const testFetchCommand = vscode.commands.registerCommand('clover.testFetch', async () => {
     const userInput = await vscode.window.showInputBox({
         prompt: 'Enter prompt for suggestion.',
     });
@@ -72,7 +72,7 @@ const testFetchCommand = vscode.commands.registerCommand('copilotClone.testFetch
 });
 
 // Show incorrect choices
-const incorrectChoicesCommand = vscode.commands.registerCommand('copilotClone.viewIncorrectChoices', async () => {
+const incorrectChoicesCommand = vscode.commands.registerCommand('clover.viewIncorrectChoices', async () => {
     const userId = "12345";
     const incorrectChoices = getIncorrectChoices(userId);
     

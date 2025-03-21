@@ -1,8 +1,8 @@
 {
-  "name": "copilot-clone",
-  "publisher": "capstone",
-  "displayName": "copilotClone-extension",
-  "description": "",
+  "name": "clover",
+  "publisher": "Temple Capstone S2025 Team 2",
+  "displayName": "Clover",
+  "description": "Generate AI suggestions that promote learning",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.97.0"
@@ -21,26 +21,26 @@
   "contributes": {
     "keybindings": [
       {
-        "command": "copilotClone.acceptInlineSuggestion",
+        "command": "clover.acceptInlineSuggestion",
         "key": "tab",
         "when": "inlineSuggestionVisible"
       },
       {
-        "command": "copilotClone.rejectInlineSuggestion",
+        "command": "clover.rejectInlineSuggestion",
         "key": "ctrl+space",
         "when": "inlineSuggestionVisible"
       },
       {
-        "command": "copilotClone.rejectInlineSuggestion",
+        "command": "clover.rejectInlineSuggestion",
         "key": "cmd+r",
         "when": "inlineSuggestionVisible"
       }
     ],
     "configuration": [
       {
-        "title": "Copilot Clone",
+        "title": "Clover",
         "properties": {
-          "copilot-clone.general.modelSelection": {
+          "clover.general.modelSelection": {
             "type": "string",
             "enum": [
               "ollama",
@@ -52,7 +52,7 @@
             "description": "Select which LLM used for suggestions.",
             "group": "general"
           },
-          "copilot-clone.model.temperature": {
+          "clover.model.temperature": {
             "type": "number",
             "default": 0.2,
             "minimum": 0,
@@ -60,7 +60,7 @@
             "description": "Temperature value the model will use.",
             "group": "model"
           },
-          "copilot-clone.model.top_k": {
+          "clover.model.top_k": {
             "type": "number",
             "default": 0,
             "minimum": 0,
@@ -68,7 +68,7 @@
             "description": "Top K value the model will use.",
             "group": "model"
           },
-          "copilot-clone.model.top_p": {
+          "clover.model.top_p": {
             "type": "number",
             "default": 1,
             "minimum": 0,
@@ -76,7 +76,7 @@
             "description": "Top P (Nucleus Sampling) value the model will use.",
             "group": "model"
           },
-          "copilot-clone.model.maxTokens": {
+          "clover.model.maxTokens": {
             "type": "number",
             "default": 256,
             "minimum": 0,
@@ -84,7 +84,7 @@
             "description": "Limit the maximum number of tokens allowed for a response.",
             "group": "model"
           },
-          "copilot-clone.debug.AIEndpoint": {
+          "clover.debug.AIEndpoint": {
             "type": "string",
             "default": "https://ai.nickrucinski.com/suggestion",
             "description": "The endpoint the extension will fetch suggestions from.",
@@ -95,12 +95,12 @@
     ],
     "commands": [
       {
-        "command": "copilotClone.testFetch",
+        "command": "clover.testFetch",
         "title": "Debug: Test fetchSuggestions"
       },
       {
-        "command": "copilotClone.signIn",
-        "title": "Sign In for coPilotClone"
+        "command": "clover.signIn",
+        "title": "Sign In for Clover"
       }
     ]
   },

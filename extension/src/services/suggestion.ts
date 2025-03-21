@@ -91,7 +91,7 @@ const getPromptText = (document: vscode.TextDocument, position: vscode.Position)
  * Commits the inline suggestion and logs the acceptance event.
  */
 export const acceptSuggestion = vscode.commands.registerCommand(
-    'copilotClone.acceptInlineSuggestion',
+    'clover.acceptInlineSuggestion',
     async () => {
         const editor = vscode.window.activeTextEditor;
         if (!editor) {return;}
@@ -129,7 +129,7 @@ export const acceptSuggestion = vscode.commands.registerCommand(
  * Hides the inline suggestion and logs the rejection event.
  */
 export const rejectSuggestion = vscode.commands.registerCommand(
-    'copilotClone.rejectInlineSuggestion', 
+    'clover.rejectInlineSuggestion', 
     async () => {
         const editor = vscode.window.activeTextEditor;
         if (!editor) {return;}
