@@ -1,10 +1,5 @@
 import * as vscode from 'vscode';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import * as dotenv from 'dotenv';
-import * as path from 'path';
-
-// Load environment variables from .env
-dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
 /**
  * Initializes a Supabase client using environment variables.

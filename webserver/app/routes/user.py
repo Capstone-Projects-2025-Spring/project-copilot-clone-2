@@ -132,7 +132,7 @@ def create_user_route():
     """
     data = request.json
 
-    required_fields = ['first_name', 'last_name', 'email', 'password']
+    required_fields = ['id', 'first_name', 'last_name', 'email']
 
     if not all(field in data and data[field] for field in required_fields):
         return error_response(
@@ -141,20 +141,22 @@ def create_user_route():
             StatusCodes.BAD_REQUEST
         )
 
+    id = data["id"]
     first_name = data["first_name"]
     last_name = data["last_name"]
     email = data["email"]
-    password = data["password"]
 
     try:
-        create_user(first_name, last_name, email, password)
+        result = create_user(id, first_name, last_name, email)
+
         return success_response(
             "User created successfully",
-            None,
+            result,
             StatusCodes.CREATED
         )
     
     except Exception as e:
+        print(f"Error creating user: {e}")
         return error_response(
             "Error creating user",
             {

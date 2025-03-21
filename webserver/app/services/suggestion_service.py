@@ -9,10 +9,10 @@ def getSuggestion(
     prompt: str,
     vendor: str = vendors.Google,
     model_name: str = "codellama",
-    temperature: float = 0.2,
-    top_p: float = 1,
-    top_k: int = 0,
-    max_tokens: int = 256,
+    # temperature: float = 0.2,
+    # top_p: float = 1,
+    # top_k: int = 0,
+    # max_tokens: int = 256,
     is_correct: bool = True
 ):
     """
@@ -43,28 +43,26 @@ def getSuggestion(
             return getSuggestionFromOpenAI(
                 prompt=prompt,
                 model=model_name,
-                model_params=model_params,
+                # model_params=model_params,
                 is_correct=is_correct
             )
         case vendors.Ollama:
             return getSuggestionFromOllama(
                 prompt=prompt,
                 model_name=model_name,
-                model_params=model_params,
+                # model_params=model_params,
                 is_correct=is_correct
             )
         case vendors.Google:
             return getSuggestionFromGoogle(
                 prompt=prompt,
-                model_name=model_name,
-                model_params=model_params,
                 is_correct=is_correct
             )
         case _:
             return getSuggestionFromOllama(
                 prompt=prompt,
                 model_name=model_name,
-                model_params=model_params,
+                # model_params=model_params,
                 is_correct=is_correct
             )
 
@@ -143,10 +141,7 @@ def getSuggestionFromOllama(
         raise ModelError(f"Error fetching Ollama suggestion: {e}")
     
 def getSuggestionFromGoogle(
-        prompt: str,
-        model_name: str,
-        model_params: dict,
-        is_correct: bool
+    prompt: str,l
 ):
     """
     Sends the prompt to the model and returns an array of two code snippets:

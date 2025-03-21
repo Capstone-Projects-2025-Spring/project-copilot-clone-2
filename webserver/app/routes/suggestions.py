@@ -1,5 +1,5 @@
 from flask import Blueprint, request
-from app.services.suggestion_service import getSuggestion, getAvailableModels
+from app.services.suggestion_service import getAvailableModels, getSuggestion
 from app.models.response import *
 from app.models.status_codes import StatusCodes
 from flasgger import swag_from
@@ -95,7 +95,7 @@ def generate_suggestion_route():
     vendor_name = data.get("vendor")
     model_name = data.get("model")
     model_params = data.get("parameters")
-    is_correct = data.get("is_correct")
+    is_correct = data.get("isCorrect")
 
     if not prompt:
         return error_response(
@@ -110,9 +110,11 @@ def generate_suggestion_route():
             prompt=prompt,
             vendor=vendor_name,
             model_name=model_name,
-            model_params=model_params,
+            # model_params=model_params,
             is_correct=is_correct
         )
+
+        print(f"Generated response: {response}")
         return success_response(
             "AI Suggestions",
             { "suggestions": [response]},

@@ -5,7 +5,7 @@ import { hasBugRandomly } from "../utils/bug";
 import { trackEvent } from "./log";
 import { getSettings } from "../extension";
 
-const TESTING: boolean = false;
+const TESTING: boolean = true;
 
 /* Endpoint for creating new AI suggestions */
 const AI_ENDPOINT: string = TESTING ?
@@ -67,7 +67,7 @@ export async function fetchSuggestions(
             body: JSON.stringify(
                 {
                     prompt,
-                    vendor,
+                    vendor: "google",
                     model,
                     isCorrect,
                     parameters
