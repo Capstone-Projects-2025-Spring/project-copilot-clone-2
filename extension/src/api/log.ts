@@ -20,3 +20,28 @@ export function trackEvent(logData: LogData): void {
         body: JSON.stringify(logDataForBackend),
     }).catch(err => console.error("Failed to log data:", err));
 }
+
+/**
+ * Fetches logs for a specific user from the backend.
+ *
+ * @param {string} userId - The ID of the user whose logs are to be fetched.
+ * @returns {Promise<any>} - A promise that resolves to the logs for the user.
+ */
+export async function getLogsByUser(userId: string): Promise<any> {
+    try {
+        const response = await fetch(`${LOG_ENDPOINT}/${userId}`, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to fetch logs: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        return data; 
+    } catch (error) {
+        console.error("Error fetching logs:", error);
+        throw error; 
+    }
+}

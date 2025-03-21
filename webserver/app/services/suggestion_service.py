@@ -56,7 +56,7 @@ def getSuggestion(
         case vendors.Google:
             return getSuggestionFromGoogle(
                 prompt=prompt,
-                is_correct=is_correct
+                # is_correct=is_correct
             )
         case _:
             return getSuggestionFromOllama(
@@ -141,7 +141,7 @@ def getSuggestionFromOllama(
         raise ModelError(f"Error fetching Ollama suggestion: {e}")
     
 def getSuggestionFromGoogle(
-    prompt: str,l
+    prompt: str,
 ):
     """
     Sends the prompt to the model and returns an array of two code snippets:

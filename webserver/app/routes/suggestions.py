@@ -114,7 +114,6 @@ def generate_suggestion_route():
             is_correct=is_correct
         )
 
-        print(f"Generated response: {response}")
         return success_response(
             "AI Suggestions",
             { "suggestions": [response]},
