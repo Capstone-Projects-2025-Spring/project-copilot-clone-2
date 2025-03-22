@@ -188,7 +188,8 @@ def get_logs_by_user_route(user_id):
     See Swagger docs for more information.
     """
     try:
-        logs = get_logs_by_user(user_id)
+        code_context_id = request.args.get("code_context_id")
+        logs = get_logs_by_user(user_id, code_context_id)
 
         if not logs:
             return success_response(

@@ -1,6 +1,6 @@
 import { User } from "../types/user";
 
-const USER_ENDPOINT: string = "http://127.0.0.1:8001/users";
+const USER_ENDPOINT: string = "https://api.nickrucinski.com/users";
 
 export async function registerUser(id: string, firstName: string, lastName: string, email: string): Promise<User> {
     const response = await fetch(USER_ENDPOINT, {

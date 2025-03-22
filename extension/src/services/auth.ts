@@ -134,7 +134,11 @@ async function signInOrSignUpEmail(context: vscode.ExtensionContext) {
     }
 }
 
-// Function to handle sign-in
+/**
+ * Handles user sign-in using email and password.
+ *
+ * @param {SupabaseClient} supabase - The Supabase client instance.
+ */
 async function handleSignIn(supabase: SupabaseClient) {
     const email = await vscode.window.showInputBox({ prompt: 'Enter your email', placeHolder: "sample@gmail.com" });
     if (!email) { return; }
@@ -159,6 +163,11 @@ async function handleSignIn(supabase: SupabaseClient) {
     }
 }
 
+/**
+ * Handles user sign-out and updates the global authentication context.
+ *
+ * @param {SupabaseClient} supabase - The Supabase client instance.
+ */
 async function handleSignOut(supabase: SupabaseClient) {
     const { error } = await supabase.auth.signOut();
 
@@ -177,7 +186,11 @@ async function handleSignOut(supabase: SupabaseClient) {
     }
 }
 
-// Function to handle sign-up
+/**
+ * Handles user sign-up using email and password, and registers the user in the backend.
+ *
+ * @param {SupabaseClient} supabase - The Supabase client instance.
+ */
 async function handleSignUp(supabase: SupabaseClient) {
     const firstName = await vscode.window.showInputBox({ prompt: 'Enter your first name', placeHolder: "Example: John" });
     if (!firstName) { return; }
@@ -200,7 +213,7 @@ async function handleSignUp(supabase: SupabaseClient) {
         vscode.window.showInformationMessage("Sign Up successful! 🎉");
 
         try {
-            const user = await registerUser(id, firstName, lastName, email);
+            await registerUser(id, firstName, lastName, email);
             await setAuthContext({ id, email }, data.session, true);
         } catch (err: any) {
             vscode.window.showErrorMessage(`Failed to register user in backend: ${err.message}`);

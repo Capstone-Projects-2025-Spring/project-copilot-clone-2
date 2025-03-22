@@ -54,7 +54,7 @@ def get_all_logs():
         print(f"Error fetching logs: {e}")
         raise e
 
-def get_logs_by_user(user_id):
+def get_logs_by_user(user_id, code_context_id=None):
     """
     Retrieves all logs associated with a specific user.
 
@@ -68,7 +68,12 @@ def get_logs_by_user(user_id):
         Exception: If there is an error fetching logs for the user.
     """
     try:
-        response = client.table("logs").select("*").eq("metadata->>user_id", str(user_id)).execute()
+        query = client.table("logs").select("*").eq("metadata->>user_id", str(user_id))
+
+        if code_context_id:
+            query = query.eq("metadata->>code_context_id", str(code_context_id))
+
+        response = query.execute()
 
         print(f"Fetched logs for user {user_id}: {response.data}")
 

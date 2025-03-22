@@ -5,7 +5,7 @@ import { hasBugRandomly } from "../utils/bug";
 import { trackEvent } from "./log";
 import { getSettings } from "../extension";
 
-const TESTING: boolean = true;
+const TESTING: boolean = false; // Set to true for local testing
 
 /* Endpoint for creating new AI suggestions */
 const AI_ENDPOINT: string = TESTING ?
