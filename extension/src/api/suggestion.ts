@@ -5,7 +5,7 @@ import { hasBugRandomly } from "../utils/bug";
 import { trackEvent } from "./log";
 import { getSettings } from "../extension";
 
-const TESTING: boolean = false;
+const TESTING: boolean = false; // Set to true for local testing
 
 /* Endpoint for creating new AI suggestions */
 const AI_ENDPOINT: string = TESTING ?
@@ -67,7 +67,7 @@ export async function fetchSuggestions(
             body: JSON.stringify(
                 {
                     prompt,
-                    vendor,
+                    vendor: "google",
                     model,
                     isCorrect,
                     parameters
@@ -137,7 +137,7 @@ async function saveSuggestionToDatabase(suggestion: Suggestion) : Promise<Result
     const body = JSON.stringify(suggestion);
 
     try {
-        const response = await fetch(LOCAL_LOG_SUGGESTION_ENDPOINT, {
+        const response = await fetch(LOG_SUGGESTION_ENDPOINT, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

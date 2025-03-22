@@ -5,6 +5,7 @@ import { logSuggestionEvent } from './log';
 import { AUTH_CONTEXT, AuthContext } from '../types/user';
 import { signIn } from './auth';
 import { globalContext } from '../extension';
+import { getSupabaseClient } from '../configs/supabaseClient';
 
 /** 
  * Tracks contextual information for a suggestion, including its unique ID, 
@@ -25,7 +26,7 @@ let suggestionsToReview: string[] = [];
 
 /** Timeout handler for debouncing text changes */
 let debounceTimer: NodeJS.Timeout | null = null;
-const TYPING_PAUSE_THRESHOLD = 2000;
+const TYPING_PAUSE_THRESHOLD = 1000;
 let lastRequest: { document: vscode.TextDocument; position: vscode.Position; context: vscode.InlineCompletionContext; token: vscode.CancellationToken } | null = null;
 
 /**
@@ -62,19 +63,39 @@ export async function provideInlineCompletionItems(
             const userContext = globalContext.globalState.get(AUTH_CONTEXT) as AuthContext;
 
             if (!userContext || !userContext.isAuthenticated) {
-                const choice = await vscode.window.showInformationMessage(
+                await vscode.window.showInformationMessage(
                     "You are not authenticated. Please sign in to track your progress!",
                     "Sign In"
-                );
-        
-                if (choice === "Sign In") {
-                    await signIn(globalContext);
-                }
+                ).then((selection) => { 
+                    if (selection === "Sign In") {
+                        signIn(globalContext);
+                    }
+                });
+            }
+
+            const isLocked = await isUserUnlocked(userContext.user?.id as string);
+
+            if (isLocked) {
+                vscode.window.showInformationMessage(
+                    "Your suggestions are locked. Please review your progress to unlock it.",
+                    "Review",
+                    "Ignore"
+                ).then((selection) => {
+                    if (selection === "Review") {
+                        vscode.env.openExternal(vscode.Uri.parse("https://clover.nickrucinski.com/"));
+                    }
+                });
+
+                return;
             }
 
             if (lastRequest) {
                 const { document, position, context, token } = lastRequest;
                 const prompt = getPromptText(document, position);
+
+                if (!prompt || prompt.trim() === "") {
+                    return;
+                }
 
                 const result = await fetchSuggestions(prompt);
 
@@ -94,7 +115,7 @@ export async function provideInlineCompletionItems(
 
                     resolve(completionItems);
                 } else {
-                    resolve([]); // Resolve with an empty array if no suggestions are available
+                    return; 
                 }
             }
         }, TYPING_PAUSE_THRESHOLD); // Debounce delay of 300ms
@@ -181,4 +202,24 @@ const resetSuggestionContext = () => {
         startTime: 0
     };
     suggestionsToReview = [];
+};
+
+const isUserUnlocked = async (userId: string): Promise<boolean> => {
+    const supabase = getSupabaseClient();
+    if (!supabase) {
+        throw new Error('Supabase client initialization failed.');
+    }
+
+    const { data, error } = await supabase
+        .from("users")
+        .select("is_locked")
+        .eq("id", userId)
+        .single();
+
+    if (error) {
+        console.error("Failed to check user lock status:", error);
+        return false;
+    }
+
+    return data.is_locked;
 };

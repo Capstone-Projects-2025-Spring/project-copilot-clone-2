@@ -9,6 +9,9 @@ export enum LogEvent {
     USER_LOGOUT = "USER_LOGOUT",
 
     USER_AUTH_GITHUB = "USER_AUTH_GITHUB",
+
+    USER_LOCKED = "USER_LOCKED",
+    USER_UNLOCKED = "USER_UNLOCKED"
 }
 
 export interface LogData {

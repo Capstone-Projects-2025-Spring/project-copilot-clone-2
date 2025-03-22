@@ -34,7 +34,7 @@ def get_user_by_id(user_id: str):
         raise DatabaseError(f"Failed to retrieve user: {str(e)}")
 
 
-def create_user(first_name: str, last_name: str, email: str, password: str):
+def create_user(id: str, first_name: str, last_name: str, email: str):
     """
     Create a user in the database
 
@@ -55,14 +55,12 @@ def create_user(first_name: str, last_name: str, email: str, password: str):
     try:
         if client is None:
             raise RuntimeError("Database client is not initialized.")
-        
-        hashed_password = User.hash_password(password)
 
         response = client.table("users").insert({
+            "id": id,
             "first_name": first_name,
             "last_name": last_name,
             "email": email,
-            #"password": hashed_password
         }).execute()
 
         return response.data[0]

@@ -4,6 +4,8 @@ import { LogData, LogEvent } from '../types/event';
 import { trackEvent } from '../api/log';
 import { AUTH_CONTEXT } from '../types/user';
 import { globalContext } from '../extension';
+import { registerUser } from '../api/user';
+import { SupabaseClient } from '@supabase/supabase-js';
 
 /**
  * Sets the authentication context for the user in the global state.
@@ -16,7 +18,7 @@ import { globalContext } from '../extension';
 async function setAuthContext(
     user: { id?: string; email?: string },
     session: any, 
-    isAuthenticated: boolean
+    isAuthenticated: boolean = false
 ) {
     if (!user || !globalContext) {
         throw new Error("Invalid user or context provided.");
@@ -37,7 +39,7 @@ async function setAuthContext(
  * @param {vscode.ExtensionContext} context - The VS Code extension context.
  */
 export async function checkUserSignIn(context: vscode.ExtensionContext) {
-    const supabase = await getSupabaseClient(context);
+    const supabase = getSupabaseClient();
     if (!supabase) {
         throw new Error('Supabase client initialization failed.');
     }
@@ -78,12 +80,31 @@ export async function checkUserSignIn(context: vscode.ExtensionContext) {
  * @param {vscode.ExtensionContext} context - The VS Code extension context.
  */
 export async function signIn(context: vscode.ExtensionContext){
-    const signInMethod = await vscode.window.showQuickPick(['Sign in with Email', 'Sign in with GitHub'], { placeHolder: 'Choose a sign-in method' });
+    const authContext = globalContext.globalState.get(AUTH_CONTEXT) as { isAuthenticated?: boolean };
 
-    if (signInMethod === 'Sign in with Email') {
-        signInOrSignUpEmail(context);
-    } else if (signInMethod === 'Sign in with GitHub') {
-        signInWithGithub(context);
+    const supabase = getSupabaseClient();
+    if (!supabase) {
+        vscode.window.showErrorMessage('Supabase client initialization failed.');
+        return;
+    }
+
+    if (authContext && authContext.isAuthenticated) {
+        const signOutChoice = await vscode.window.showInformationMessage(
+            `You are already signed in.`,
+            'Sign Out'
+        );
+
+        if (signOutChoice === 'Sign Out') {
+            await handleSignOut(supabase);
+        }
+    } else {
+        const signInMethod = await vscode.window.showQuickPick(['Sign in with Email', 'Sign in with GitHub'], { placeHolder: 'Choose a sign-in method' });
+
+        if (signInMethod === 'Sign in with Email') {
+            signInOrSignUpEmail(context);
+        } else if (signInMethod === 'Sign in with GitHub') {
+            signInWithGithub(context);
+        }
     }
 }
 
@@ -93,49 +114,116 @@ export async function signIn(context: vscode.ExtensionContext){
  * @param {vscode.ExtensionContext} context - The VS Code extension context.
  */
 //want to make it to sign up but need to look at database, this works for now 
-export async function signInOrSignUpEmail(context: vscode.ExtensionContext) {
-    const supabase = await getSupabaseClient(context);
+async function signInOrSignUpEmail(context: vscode.ExtensionContext) {
+    const supabase = getSupabaseClient();
     if (!supabase) {
         vscode.window.showErrorMessage('Supabase client initialization failed.');
         return;
     }
 
-    // Ask user to choose sign in or sign up
     const action = await vscode.window.showQuickPick(["Sign In", "Sign Up"], { 
         placeHolder: "Do you want to sign in or sign up?" 
     });
 
-    if (!action) {return;}
-
-    const email = await vscode.window.showInputBox({ prompt: 'Enter your email', placeHolder: "sample@gmail.com" });
-    if (!email) {return;}
-
-    const password = await vscode.window.showInputBox({ prompt: 'Enter your password', placeHolder: "password", password: true });
-    if (!password) {return;}
-
-    let response;
-    let logEventType = action === "Sign In" ? LogEvent.USER_LOGIN : LogEvent.USER_SIGNUP;
+    if (!action) { return; }
 
     if (action === "Sign In") {
-        response = await supabase.auth.signInWithPassword({ email, password });
+        await handleSignIn(supabase);
     } else {
-        response = await supabase.auth.signUp({ email, password });
+        await handleSignUp(supabase);
     }
+}
 
-    const { data, error } = response;
+/**
+ * Handles user sign-in using email and password.
+ *
+ * @param {SupabaseClient} supabase - The Supabase client instance.
+ */
+async function handleSignIn(supabase: SupabaseClient) {
+    const email = await vscode.window.showInputBox({ prompt: 'Enter your email', placeHolder: "sample@gmail.com" });
+    if (!email) { return; }
+
+    const password = await vscode.window.showInputBox({ prompt: 'Enter your password', placeHolder: "password", password: true });
+    if (!password) { return; }
+
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
-        vscode.window.showErrorMessage(`${action} failed: ${error.message}`);
+        vscode.window.showErrorMessage(`Sign In failed: ${error.message}`);
     } else {
-        await setAuthContext({ id: data.user?.id, email: data.user?.email }, data.session, true);
-        vscode.window.showInformationMessage(`${action} successful! 🎉`);
-        const logData: LogData = {
-            event: logEventType,
-            timeLapse: 0,
-            metadata: { user_id: data.user?.id, email: data.user?.email }
-        };
+        const id = data.user?.id as string;
+        await setAuthContext({ id, email }, data.session, true);
+        vscode.window.showInformationMessage("Sign In successful! 🎉");
 
-        trackEvent(logData);
+        trackEvent({
+            event: LogEvent.USER_LOGIN,
+            timeLapse: 0,
+            metadata: { user_id: id, email }
+        });
+    }
+}
+
+/**
+ * Handles user sign-out and updates the global authentication context.
+ *
+ * @param {SupabaseClient} supabase - The Supabase client instance.
+ */
+async function handleSignOut(supabase: SupabaseClient) {
+    const { error } = await supabase.auth.signOut();
+
+    if (error) {
+        vscode.window.showErrorMessage(`Sign Out failed: ${error.message}`);
+    } else {
+        const user = await globalContext.globalState.get(AUTH_CONTEXT) as { user?: { id: string; email: string } };
+        await globalContext.globalState.update(AUTH_CONTEXT, undefined);
+        vscode.window.showInformationMessage("Sign Out successful! 👋");
+
+        trackEvent({
+            event: LogEvent.USER_LOGOUT,
+            timeLapse: 0,
+            metadata: { user_id: user.user?.id }
+        });
+    }
+}
+
+/**
+ * Handles user sign-up using email and password, and registers the user in the backend.
+ *
+ * @param {SupabaseClient} supabase - The Supabase client instance.
+ */
+async function handleSignUp(supabase: SupabaseClient) {
+    const firstName = await vscode.window.showInputBox({ prompt: 'Enter your first name', placeHolder: "Example: John" });
+    if (!firstName) { return; }
+
+    const lastName = await vscode.window.showInputBox({ prompt: 'Enter your last name', placeHolder: "Example: Doe" });
+    if (!lastName) { return; }
+
+    const email = await vscode.window.showInputBox({ prompt: 'Enter your email', placeHolder: "sample@gmail.com" });
+    if (!email) { return; }
+
+    const password = await vscode.window.showInputBox({ prompt: 'Enter your password', placeHolder: "password", password: true });
+    if (!password) { return; }
+
+    const { data, error } = await supabase.auth.signUp({ email, password });
+
+    if (error) {
+        vscode.window.showErrorMessage(`Sign Up failed: ${error.message}`);
+    } else {
+        const id = data.user?.id as string;
+        vscode.window.showInformationMessage("Sign Up successful! 🎉");
+
+        try {
+            await registerUser(id, firstName, lastName, email);
+            await setAuthContext({ id, email }, data.session, true);
+        } catch (err: any) {
+            vscode.window.showErrorMessage(`Failed to register user in backend: ${err.message}`);
+        }
+
+        trackEvent({
+            event: LogEvent.USER_SIGNUP,
+            timeLapse: 0,
+            metadata: { user_id: id, email: email }
+        });
     }
 }
 
@@ -145,7 +233,7 @@ export async function signInOrSignUpEmail(context: vscode.ExtensionContext) {
  * @param {vscode.ExtensionContext} context - The VS Code extension context.
  */
 export async function signInWithGithub(context: vscode.ExtensionContext){  
-    const supabase = await getSupabaseClient(context);
+    const supabase = getSupabaseClient();
     try {
         // Redirect to GitHub for authentication
             vscode.window.showInformationMessage("Redirecting to GitHub for authentication...");
