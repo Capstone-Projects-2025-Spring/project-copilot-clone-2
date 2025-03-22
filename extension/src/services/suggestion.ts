@@ -74,7 +74,6 @@ export async function provideInlineCompletionItems(
             }
 
             const isLocked = await isUserUnlocked(userContext.user?.id as string);
-            console.log("User lock status:", isLocked);
 
             if (isLocked) {
                 vscode.window.showInformationMessage(
@@ -221,8 +220,6 @@ const isUserUnlocked = async (userId: string): Promise<boolean> => {
         console.error("Failed to check user lock status:", error);
         return false;
     }
-
-    console.log("User lock status data:", data);
 
     return data.is_locked;
 };

@@ -10,14 +10,14 @@ const TESTING: boolean = false; // Set to true for local testing
 /* Endpoint for creating new AI suggestions */
 const AI_ENDPOINT: string = TESTING ?
     "http://127.0.0.1:8001/suggestion" :
-    "https://ai.nickrucinski.com/suggestion";
+    "https://api.nickrucinski.com/suggestion";
 
 /* Endpoint for saving AI suggestions */
 const LOCAL_LOG_SUGGESTION_ENDPOINT: string = "http://127.0.0.1:8001/logs/suggestion";
 
 const LOG_SUGGESTION_ENDPOINT: string = TESTING ?
     "http://127.0.0.1:8001/logs/suggestion" :
-    "https://ai.nickrucinski.com/logs/suggestion";
+    "https://api.nickrucinski.com/logs/suggestion";
 
 /**
  * Fetches AI-generated suggestions based on the given prompt.
@@ -137,7 +137,7 @@ async function saveSuggestionToDatabase(suggestion: Suggestion) : Promise<Result
     const body = JSON.stringify(suggestion);
 
     try {
-        const response = await fetch(LOCAL_LOG_SUGGESTION_ENDPOINT, {
+        const response = await fetch(LOG_SUGGESTION_ENDPOINT, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
