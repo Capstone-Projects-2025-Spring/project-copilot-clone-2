@@ -13,7 +13,7 @@ const NavBar = () => {
         </div>
         <ul className="flex space-x-3 md:space-x-6 text-sm md:text-lg">
           <li><Link to="/" className="hover:text-[#50B498] transition">Home</Link></li>
-          <li><Link to="/dashboard" className="hover:text-[#50B498] transition">Dashboard</Link></li>
+          <li><Link to="/features" className="hover:text-[#50B498] transition">Dashboard</Link></li>
           <li><Link to="/about" className="hover:text-[#50B498] transition">About</Link></li>
           <li>
             <Link to="/login" className="px-3 py-1 md:px-4 md:py-2 bg-[#50B498] text-white font-semibold rounded-lg bg-white/25 hover:bg-white hover:text-black transition">
@@ -21,7 +21,7 @@ const NavBar = () => {
             </Link>
           </li>
           <li>
-            <Link to="/signup" className="px-3 py-1 md:px-4 md:py-2 bg-[#50B498] text-black font-semibold rounded-lg hover:bg-white hover:text-black transition">
+            <Link to="/login" className="px-3 py-1 md:px-4 md:py-2 bg-[#50B498] text-black font-semibold rounded-lg hover:bg-white hover:text-black transition">
              Sign Up
             </Link>
           </li>
