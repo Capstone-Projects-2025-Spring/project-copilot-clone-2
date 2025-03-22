@@ -1,40 +1,44 @@
 {
-  "name": "copilot-clone",
-  "publisher": "capstone",
-  "displayName": "copilotClone-extension",
-  "description": "",
+  "name": "clover",
+  "publisher": "Temple Capstone S2025 Team 2",
+  "displayName": "Clover",
+  "description": "Generate AI suggestions that promote learning",
   "version": "0.0.1",
   "engines": {
-    "vscode": "^1.96.4"
+    "vscode": "^1.97.0"
   },
   "categories": [
     "Other"
   ],
   "activationEvents": [
-    "*"
+    "onStartupFinished"
   ],
-  "main": "./out/extension.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Capstone-Projects-2025-Spring/project-copilot-clone-2"
+  },
+  "main": "./dist/extension.js",
   "contributes": {
     "keybindings": [
       {
-        "command": "copilotClone.acceptInlineSuggestion",
+        "command": "clover.acceptInlineSuggestion",
         "key": "tab",
         "when": "inlineSuggestionVisible"
       },
       {
-        "command": "copilotClone.rejectInlineSuggestion",
+        "command": "clover.rejectInlineSuggestion",
         "key": "ctrl+space",
         "when": "inlineSuggestionVisible"
       },
       {
-        "command": "copilotClone.rejectInlineSuggestion",
+        "command": "clover.rejectInlineSuggestion",
         "key": "cmd+r",
         "when": "inlineSuggestionVisible"
       }
     ],
     "configuration": [
       {
-        "title": "Copilot Clone Settings",
+        "title": "Clover",
         "properties": {
           "copilot-clone.general.vendor": {
             "type": "string",
@@ -46,7 +50,7 @@
             ],
             "description": "Choose the vendor providing the model."
           },
-          "copilot-clone.general.modelSelection": {
+          "clover.general.modelSelection": {
             "type": "string",
             "default": "codellama:7b",
             "enum": [
@@ -61,7 +65,7 @@
             "description": "Select which LLM is used for suggestions.",
             "group": "general"
           },
-          "copilot-clone.model.temperature": {
+          "clover.model.temperature": {
             "type": "number",
             "default": 0.2,
             "minimum": 0,
@@ -69,7 +73,7 @@
             "description": "Temperature value the model will use.",
             "group": "model"
           },
-          "copilot-clone.model.top_k": {
+          "clover.model.top_k": {
             "type": "number",
             "default": 0,
             "minimum": 0,
@@ -77,7 +81,7 @@
             "description": "Top K value the model will use.",
             "group": "model"
           },
-          "copilot-clone.model.top_p": {
+          "clover.model.top_p": {
             "type": "number",
             "default": 1,
             "minimum": 0,
@@ -85,35 +89,45 @@
             "description": "Top P (Nucleus Sampling) value the model will use.",
             "group": "model"
           },
-          "copilot-clone.model.maxTokens": {
+          "clover.model.maxTokens": {
             "type": "number",
             "default": 256,
             "minimum": 0,
             "maximum": 1024,
             "description": "Limit the maximum number of tokens allowed for a response.",
             "group": "model"
+          },
+          "clover.debug.AIEndpoint": {
+            "type": "string",
+            "default": "https://ai.nickrucinski.com/suggestion",
+            "description": "The endpoint the extension will fetch suggestions from.",
+            "group": "debug"
           }
         }
       }
     ],
     "commands": [
       {
-        "command": "copilotClone.testFetch",
+        "command": "clover.testFetch",
         "title": "Debug: Test fetchSuggestions"
       },
       {
-        "command": "copilotClone.signIn",
-        "title": "Sign In for coPilotClone"
+        "command": "clover.signIn",
+        "title": "Sign In for Clover"
       }
     ]
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src",
-    "test": "jest"
+    "test": "jest",
+    "compile": "npm run check-types && node esbuild.js",
+    "check-types": "tsc --noEmit",
+    "watch": "npm-run-all -p watch:*",
+    "watch:esbuild": "node esbuild.js",
+    "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
+    "vscode:prepublish": "npm run package",
+    "package": "npm run check-types && node esbuild.js --production"
   },
   "devDependencies": {
     "@types/jest": "^29.5.14",
@@ -123,6 +137,7 @@
     "@typescript-eslint/parser": "^8.22.0",
     "@vscode/test-cli": "^0.0.10",
     "@vscode/test-electron": "^2.4.1",
+    "esbuild": "^0.25.1",
     "eslint": "^9.19.0",
     "jest": "^29.7.0",
     "ts-jest": "^29.2.6",

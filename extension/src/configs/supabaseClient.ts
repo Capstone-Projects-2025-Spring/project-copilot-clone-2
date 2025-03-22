@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { createClient, Session, SupabaseClient } from '@supabase/supabase-js';
 
+let supabase: SupabaseClient | null = null;
 /**
  * Initializes a Supabase client using environment variables.
  *

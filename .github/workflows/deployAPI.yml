@@ -11,17 +11,32 @@ jobs:
         steps:
             - name: Checkout repository
               uses: actions/checkout@v4
+              with:
+                  ref: dev
 
             - name: Stop Flask Server
               run: |
-                sudo systemctl stop flask-app.service || true
+                sudo systemctl stop api.service || true
 
             - name: Build and Deploy
               run: |
-                cd ~/Projects/project-copilot-clone-2/webserver
+                cd ~/project-copilot-clone-2/server
                 source .venv/bin/activate
                 pip install -r requirements.txt
   
             - name: Start Flask service
               run: |
-                sudo systemctl start flask-app.service
+                sudo systemctl start api.service
+
+            - name: Stop website service
+              run: |
+                sudo systemctl stop website.service
+            
+            - name: Build and deploy
+              run: |
+                cd ~/project-copilot-clone-2/website
+                npm install
+
+            - name: Start website service
+              run: |
+                sudo systemctl start website.service

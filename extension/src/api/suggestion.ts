@@ -13,7 +13,7 @@ const AI_ENDPOINT: string = TESTING ?
     "https://api.nickrucinski.com/suggestion";
 
 /* Endpoint for saving AI suggestions */
-const LOCAL_LOG_SUGGESTION_ENDPOINT: string = "http://127.0.0.1:8001/logs/suggestion";
+const LOCAL_LOG_SUGGESTION_ENDPOINT: string = "api.nickrucinski.com/logs/suggestion";
 
 const LOG_SUGGESTION_ENDPOINT: string = TESTING ?
     "http://127.0.0.1:8001/logs/suggestion" :
