@@ -74,9 +74,12 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">flask</span><span class="w"> </span><span class="kn">import</span> <span class="n">current_app</span><span class="p">,</span> <span class="n">g</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">werkzeug.local</span><span class="w"> </span><span class="kn">import</span> <span class="n">LocalProxy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">google.generativeai</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">genai</span>
+
+
 
 <span class="n">OLLAMA_URL</span> <span class="o">=</span> <span class="s2">&quot;http://localhost:11434/api/generate&quot;</span>  
-<span class="n">DEFAULT_MODEL_NAME</span> <span class="o">=</span> <span class="s2">&quot;codellama:latest&quot;</span>
+<span class="n">DEFAULT_MODEL_NAME</span> <span class="o">=</span> <span class="s2">&quot;codellama:7b&quot;</span>
 
 <span class="c1"># system command to create a special AI model</span>
 <span class="c1"># {</span>
@@ -102,22 +105,57 @@
 <span class="n">good_command</span> <span class="o">=</span> <span class="s2">&quot;SYSTEM: Complete the following code:&quot;</span>
 <span class="n">bad_command</span> <span class="o">=</span> <span class="s2">&quot;SYSTEM: Complete the following code but introduce a small syntax or logic mistake:&quot;</span>
 
+
+
+
 <div class="viewcode-block" id="vendors">
 <a class="viewcode-back" href="../../../app.controllers.html#app.controllers.ai.vendors">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">vendors</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
     <span class="n">OpenAI</span> <span class="o">=</span> <span class="s2">&quot;openai&quot;</span>
-    <span class="n">Ollama</span> <span class="o">=</span> <span class="s2">&quot;ollama&quot;</span></div>
+    <span class="n">Ollama</span> <span class="o">=</span> <span class="s2">&quot;ollama&quot;</span>
+    <span class="n">Google</span> <span class="o">=</span> <span class="s2">&quot;google&quot;</span></div>
 
 
-<div class="viewcode-block" id="get_ai">
-<a class="viewcode-back" href="../../../app.controllers.html#app.controllers.ai.get_ai">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_ai</span><span class="p">():</span>
-    <span class="k">if</span> <span class="s2">&quot;ai&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">g</span><span class="p">:</span>
-        <span class="n">g</span><span class="o">.</span><span class="n">ai</span> <span class="o">=</span> <span class="n">OpenAI</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="n">current_app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;OPENAI_API_KEY&quot;</span><span class="p">])</span>
+<span class="n">default_openai_parameters</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>
+    <span class="s2">&quot;top_p&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s2">&quot;top_k&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="s2">&quot;max_tokens&quot;</span><span class="p">:</span> <span class="mi">256</span><span class="p">,</span>
+<span class="p">}</span>
+
+<div class="viewcode-block" id="get_openai">
+<a class="viewcode-back" href="../../../app.controllers.html#app.controllers.ai.get_openai">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_openai</span><span class="p">():</span>
+    <span class="k">with</span> <span class="n">current_app</span><span class="o">.</span><span class="n">app_context</span><span class="p">():</span>
+        <span class="k">if</span> <span class="s2">&quot;ai&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">g</span><span class="p">:</span>
+            <span class="n">g</span><span class="o">.</span><span class="n">ai</span> <span class="o">=</span> <span class="n">OpenAI</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="n">current_app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;OPENAI_API_KEY&quot;</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">g</span><span class="o">.</span><span class="n">ai</span></div>
 
+<div class="viewcode-block" id="get_gemini">
+<a class="viewcode-back" href="../../../app.controllers.html#app.controllers.ai.get_gemini">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_gemini</span><span class="p">():</span>
+    <span class="k">if</span> <span class="s2">&quot;gemini&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">g</span><span class="p">:</span>
+        <span class="n">genai</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">api_key</span><span class="o">=</span><span class="n">current_app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;GEMINI_API_KEY&quot;</span><span class="p">])</span>
+        <span class="c1"># Create the model</span>
+        <span class="n">generation_config</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s2">&quot;top_p&quot;</span><span class="p">:</span> <span class="mf">0.95</span><span class="p">,</span>
+            <span class="s2">&quot;top_k&quot;</span><span class="p">:</span> <span class="mi">64</span><span class="p">,</span>
+            <span class="s2">&quot;max_output_tokens&quot;</span><span class="p">:</span> <span class="mi">8192</span><span class="p">,</span>
+            <span class="s2">&quot;response_mime_type&quot;</span><span class="p">:</span> <span class="s2">&quot;text/plain&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">g</span><span class="o">.</span><span class="n">gemini</span> <span class="o">=</span> <span class="n">genai</span><span class="o">.</span><span class="n">GenerativeModel</span><span class="p">(</span>
+            <span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;learnlm-1.5-pro-experimental&quot;</span><span class="p">,</span>
+            <span class="n">generation_config</span><span class="o">=</span><span class="n">generation_config</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">g</span><span class="o">.</span><span class="n">gemini</span><span class="o">.</span><span class="n">chat_session</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">gemini</span><span class="o">.</span><span class="n">start_chat</span><span class="p">(</span>
+            <span class="n">history</span><span class="o">=</span><span class="p">[]</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">g</span><span class="o">.</span><span class="n">gemini</span></div>
+
     
-<span class="n">client</span> <span class="o">=</span> <span class="n">LocalProxy</span><span class="p">(</span><span class="n">get_ai</span><span class="p">)</span>
+<span class="n">openai_client</span> <span class="o">=</span> <span class="n">LocalProxy</span><span class="p">(</span><span class="n">get_openai</span><span class="p">)</span>
+<span class="n">gemini_client</span> <span class="o">=</span> <span class="n">LocalProxy</span><span class="p">(</span><span class="n">get_gemini</span><span class="p">)</span>
 </pre></div>
 
            </div>

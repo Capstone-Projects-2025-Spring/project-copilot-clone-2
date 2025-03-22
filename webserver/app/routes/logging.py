@@ -70,7 +70,7 @@ def log_event_route():
     """
     data = request.json
 
-    required_fields = ['event', 'metadata']
+    required_fields = ['event', 'time_lapse', 'metadata']
     missing_fields = [field for field in required_fields if field not in data]
 
     if missing_fields:
@@ -306,11 +306,11 @@ def log_suggestion_route():
     }
 
     try:
-        log_suggestion(suggestion)
+        logged_suggestion = log_suggestion(suggestion)
 
         return success_response(
             "Logged suggestion",
-            None,
+            logged_suggestion['id'],
             StatusCodes.CREATED
         )
     

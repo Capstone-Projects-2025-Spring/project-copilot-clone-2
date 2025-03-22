@@ -30,7 +30,6 @@ def log_suggestion(suggestion):
         response = client.table("suggestions").insert(suggestion).execute()
         if response.data:
             suggestion['id'] = response.data[0]['id']
-            print(f"LOGGED SUGGESTION: {suggestion}")
             return suggestion
         else:
             raise Exception("No data returned from insert operation")

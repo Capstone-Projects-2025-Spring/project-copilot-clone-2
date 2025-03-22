@@ -6,84 +6,107 @@ name: Deploy Docs
 
 on:
   workflow_run:
-    workflows: ["Documentation", "Tests"]
+    workflows: ["Tests"]
     types:
       - completed
+
 jobs:
-  deploy:
+  generate-docs:
     runs-on: ubuntu-latest
-    env:
-      GIT_USER: ${{secrets.USER}}
-      GIT_PASS: ${{secrets.TOKEN}}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.12'
+
+      - name: Create .env file
+        run: |
+          cd webserver
+          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> .env
+          echo "SUPABASE_KEY=${{ secrets.SUPABASE_KEY }}" >> .env
+
       - name: Install dependencies
         run: |
           cd webserver
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+
+      - name: Generate Coverage Report
+        run: |
+          cd webserver
+          coverage run -m pytest tests/ -v
+          coverage html
+          cd ../
+          rm -rf documentation/static/htmlcov
+          mv webserver/htmlcov documentation/static/
+
       - name: Generate Python documentation
         run: |
           cd webserver/docs
           python -m sphinx.cmd.build -b html source build
+
       - name: Upload flaskdocs
         run: |
           rm -rf documentation/static/flaskdoc
           mv webserver/docs/build documentation/static/flaskdoc
+          
       - name: Generate OpenAPI documentation
         run: |
           curl -L -o documentation/static/apispec_1.json https://ai.nickrucinski.com/apispec_1.json
-  
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '16'
+          node-version: '18'
+
       - name: Install dependencies
         run: |
           cd extension
           npm install
+
       - name: Generate extension documentation
         run: |
           cd extension
           npx typedoc src --entryPointStrategy expand --plugin typedoc-theme-hierarchy --theme hierarchy --readme none
           cd ../
           mv webserver/docs/tsdoc documentation/static/tsdoc
-          ls documentation/static/
 
-      - name: Setup Python
-        uses: actions/setup-python@v4
+      - name: Debug Documentation Files
+        run: ls -R documentation/static/
+
+      - name: Upload Documentation Artifacts
+        id: upload-docs
+        uses: actions/upload-artifact@v4
         with:
-          python-version: '3.13'
+          name: documentation
+          path: documentation/static/
+  deploy:
+    runs-on: ubuntu-latest
+    needs: generate-docs
+    env:
+      GIT_USER: ${{secrets.USER}}
+      GIT_PASS: ${{secrets.TOKEN}}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Download Documentation Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: documentation
+          path: documentation/static/
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
       - name: Install dependencies
         run: |
-          cd webserver
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-      - name: Create .env file
-        run: |
-          cd webserver
-          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> .env
-          echo "SUPABASE_KEY=${{ secrets.SUPABASE_KEY }}" >> .env
-          cat .env
-      - name: Run tests
-        run: |
-          cd webserver
-          pytest tests/ -v
-          coverage run -m pytest tests/ -v
-          coverage html
-      - name: Upload coverage report
-        run: |
-          rm -rf documentation/static/htmlcov
-          mv webserver/htmlcov documentation/static/
-          ls documentation/static/
-          
-      - name: Install
-        run: cd documentation && yarn install
+          cd documentation
+          yarn install
 
       - name: Deploy
         run: |
@@ -92,5 +115,3 @@ jobs:
           git config --global user.name "$(git --no-pager log --format=format:'%an' -n 1)"
           git config --global user.email "$(git --no-pager log --format=format:'%ae' -n 1)"
           cd documentation && yarn deploy
-
-  
