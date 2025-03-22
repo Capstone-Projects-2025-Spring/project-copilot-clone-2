@@ -38,12 +38,7 @@
     ],
     "configuration": [
       {
-<<<<<<< HEAD
         "title": "Clover",
-        "properties": {
-          "clover.general.modelSelection": {
-=======
-        "title": "Copilot Clone Settings",
         "properties": {
           "copilot-clone.general.vendor": {
             "type": "string",
@@ -51,8 +46,7 @@
             "enum": ["ollama", "openai", "google"],
             "description": "Choose the vendor providing the model."
           },
-          "copilot-clone.general.modelSelection": {
->>>>>>> dev
+          "clover.general.modelSelection": {
             "type": "string",
             "default": "codellama:7b",
             "enum": [
@@ -98,15 +92,12 @@
             "maximum": 1024,
             "description": "Limit the maximum number of tokens allowed for a response.",
             "group": "model"
-<<<<<<< HEAD
           },
           "clover.debug.AIEndpoint": {
             "type": "string",
             "default": "https://ai.nickrucinski.com/suggestion",
             "description": "The endpoint the extension will fetch suggestions from.",
             "group": "debug"
-=======
->>>>>>> dev
           }
         }
       }

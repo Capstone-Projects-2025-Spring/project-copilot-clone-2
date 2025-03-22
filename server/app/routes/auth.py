@@ -1,4 +1,4 @@
-from flask import request, render_template, Blueprint, redirect
+from flask import request, render_template, Blueprint, redirect, jsonify
 from app.services.auth_service import login, callback
 from app.models.response import *
 from app.models.status_codes import StatusCodes
@@ -13,7 +13,7 @@ def login_page():
 
 @auth_bp.route('/auth/login', methods=['GET'])
 def login_route():
-    provider = request.json.data.get("provider", "")
+    provider = request.args.get("provider", "")
     if not provider:
         return error_response(
             "Provider not provided. Ex github",
@@ -44,5 +44,5 @@ def auth():
 
     callback(code)
 
-    return redirect(next_url)
+    return jsonify({"code": code})
 
