@@ -6,7 +6,7 @@ on:
 
 jobs:
     deploy:
-        runs-on: aws
+        runs-on: self-hosted
 
         steps:
             - name: Checkout repository
